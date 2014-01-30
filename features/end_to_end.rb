@@ -32,8 +32,10 @@ describe "Requesting an image" do
 
   describe "When the format code is valid" do
     it "returns a 200" do
-      get "/images/w300/matz.jpg"
-      last_response.status.must_equal 200
+      app.settings.size_whitelist.each do |f|
+        get "/images/#{f}/matz.jpg"
+        last_response.status.must_equal 200, "#{f} failed, status is #{last_response.status}"
+      end
     end
   end
 end

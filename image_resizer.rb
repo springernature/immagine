@@ -33,6 +33,12 @@ class ImageResizer < Sinatra::Base
     case format_code
     when /\Aw(\d+)\z/
       processor.constrain_width($1.to_i)
+    when /\Ah(\d+)\z/
+      processor.constrain_height($1.to_i)
+    when /\Am(\d+)\z/
+      processor.resize_by_max($1.to_i)
+    when /\Aw(\d+)h(\d+)\z/
+      processor.resize_and_crop($1.to_i, $2.to_i)
     else
       raise "Unsupported format: #{format_code}. Please remove it from the whitelist."
     end
