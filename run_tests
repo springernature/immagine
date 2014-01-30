@@ -2,6 +2,7 @@
 require 'rubygems'
 require 'bundler/setup'
 
+ENV['RACK_ENV'] = "test"
 $LOAD_PATH.unshift __dir__
 Dir.glob("spec/**/*.rb").each { |f| require f }
 Dir.glob("features/**/*.rb").each { |f| require f }

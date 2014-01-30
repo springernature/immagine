@@ -7,7 +7,8 @@ require 'image_processor'
 
 class ImageResizer < Sinatra::Base
   configure do
-    conf_file = File.join(__dir__, "config", "application.yml")
+    conf_file_name = ENV['RACK_ENV'] == "test" ? "application.yml.test" : "application.yml"
+    conf_file = File.join(__dir__, "config", conf_file_name)
     conf = YAML.load(File.read(conf_file))
     conf.each do |key, value|
       set key.to_sym, value

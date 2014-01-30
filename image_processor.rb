@@ -68,7 +68,10 @@ class ImageProcessor
   def write_to_target(img)
     target_dir = File.dirname(@target)
     FileUtils.mkdir_p(target_dir)
-    img.write(@target)
+    img.write(@target) do
+      self.compression = Magick::JPEGCompression if img.format == "JPEG"
+      self.interlace = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
+    end
   end
 
   class ProcessingError < StandardError; end

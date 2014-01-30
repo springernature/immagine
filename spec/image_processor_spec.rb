@@ -76,6 +76,31 @@ describe ImageProcessor do
     end
   end
 
+  describe "Properties of produces images" do
+    describe "when the format is JPEG" do
+      it "uses JPEGCompression" do
+        processor.constrain_width(100)
+        img = image(target)
+
+        img.compression.must_equal Magick::JPEGCompression
+      end
+    end
+
+    it "uses baseline encoding for small images" do
+      processor.resize_by_max(20)
+      img = image(target)
+
+      img.interlace.must_equal Magick::NoInterlace
+    end
+
+    it "uses progressive encoding for bigger images" do
+      processor.resize_by_max(600)
+      img = image(target)
+
+      img.interlace.must_equal Magick::JPEGInterlace
+    end
+  end
+
   def image(file)
     Magick::Image.read(file).first
   end
