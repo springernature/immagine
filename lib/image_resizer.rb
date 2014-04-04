@@ -1,4 +1,5 @@
 require 'bundler'
+require "yaml"
 
 base = File.dirname(__FILE__) + "/image_resizer"
 %w(
