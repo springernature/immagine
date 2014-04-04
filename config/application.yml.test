@@ -1,8 +1,0 @@
-size_whitelist:
-  - w300
-  - h150
-  - m600
-  - w100h100
-
-source_folder: ./test-data/src
-target_folder: ./test-data/target
