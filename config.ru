@@ -1,6 +1,5 @@
-require "rubygems"
-require "sinatra"
+require File.dirname(__FILE__) + "/lib/image_resizer.rb"
 
-require File.expand_path '../image_resizer.rb', __FILE__
-
-run ImageResizer
+env = ENV["RACK_ENV"] || "development"
+ImageResizer.init(env)
+run ImageResizer::App
