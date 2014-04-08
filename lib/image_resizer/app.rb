@@ -41,7 +41,10 @@ module ImageResizer
 
     def send_file(image)
       data = image.to_blob
-      headers = {'Content-Length' => data.length.to_s}
+      headers = {
+        "Content-Length" => data.length.to_s,
+        "Content-Type"   => image.mime_type
+      }
       headers['ETag']           ||= Digest::MD5.hexdigest(data)
       headers['Cache-Control']  ||= 'public, max-age=31557600'
       headers['Last-Modified']  ||= Time.new.httpdate
