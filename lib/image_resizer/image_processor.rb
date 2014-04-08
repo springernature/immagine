@@ -2,9 +2,8 @@ require 'fileutils'
 
 module ImageResizer
   class ImageProcessor
-    def initialize(source, target)
-      @target = target
-      @img    = Magick::Image.read(source).first
+    def initialize(source)
+      @img = Magick::Image.read(source).first
     end
 
     def constrain_width(width)
@@ -12,9 +11,7 @@ module ImageResizer
         raise ProcessingError.new("The width of the image #{source} is 0")
       end
 
-      new_image = resize_image_by_width(width)
-
-      write_to_target(new_image)
+      resize_image_by_width(width)
     end
 
     def constrain_height(height)
@@ -22,9 +19,7 @@ module ImageResizer
         raise ProcessingError.new("The height of the image #{source} is 0")
       end
 
-      new_image = resize_image_by_height(height)
-
-      write_to_target(new_image)
+      resize_image_by_height(height)
     end
 
     def resize_by_max(size)
@@ -48,9 +43,7 @@ module ImageResizer
                 else
                   resize_image_by_height(height)
                 end
-      new_image = resized.crop(Magick::CenterGravity, width, height)
-
-      write_to_target(new_image)
+      resized.crop(Magick::CenterGravity, width, height)
     end
 
     private
@@ -63,15 +56,6 @@ module ImageResizer
     def resize_image_by_height(height)
       scale_factor = height.to_f / @img.rows.to_f
       @img.resize(scale_factor)
-    end
-
-    def write_to_target(img)
-      target_dir = File.dirname(@target)
-      FileUtils.mkdir_p(target_dir)
-      img.write(@target) do
-        self.compression = Magick::JPEGCompression if img.format == "JPEG"
-        self.interlace = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
-      end
     end
 
     class ProcessingError < StandardError; end

@@ -1,24 +1,45 @@
-require "sinatra/base"
-
 module ImageResizer
-  class App < Sinatra::Base
-    get '/*' do |img_path|
-      begin
-        parser = ImagePathParser.new
-        dir, format_code, basename = parser.parse(img_path)
-      rescue ImagePathParser::ParseError
+  module SendFile
+    def send_file(image)
+      data = image.to_blob
+      headers = {'Content-Length' => data.length.to_s}
+      headers['ETag']           ||= Digest::MD5.hexdigest(data)
+      headers['Cache-Control']  ||= 'public, max-age=31557600'
+      headers['Last-Modified']  ||= Time.new.httpdate
+
+      [200, headers, [data]]
+    end
+  end
+
+  class App
+    include SendFile
+
+    def call(env)
+      req = Rack::Request.new(env)
+      if req.get?
+        root(req.path)
+      else
         not_found
       end
+    end
+
+    def not_found
+      content = "Not found"
+      [404, { "Content-Length" => content.size.to_s }, [content]]
+    end
+
+    def root(image_path)
+      parser = ImagePathParser.new
+      dir, format_code, basename = parser.parse(image_path)
 
       source = File.join(ImageResizer.settings["source_folder"], dir, basename)
-      target = File.join(ImageResizer.settings["target_folder"], img_path)
 
-      not_found unless ImageResizer.settings["size_whitelist"].include?(format_code)
-      not_found unless File.exist?(source)
+      return not_found unless ImageResizer.settings["size_whitelist"].include?(format_code)
+      return not_found unless File.exist?(source)
 
-      processor = ImageProcessor.new(source, target)
+      processor = ImageProcessor.new(source)
 
-      case format_code
+      image = case format_code
       when /\Aw(\d+)\z/
         processor.constrain_width($1.to_i)
       when /\Ah(\d+)\z/
@@ -31,7 +52,10 @@ module ImageResizer
         raise "Unsupported format: #{format_code}. Please remove it from the whitelist."
       end
 
-      send_file target
+      send_file image
+    rescue ImagePathParser::ParseError
+      puts "parsing error #{image_path}"
+      return not_found
     end
   end
 end

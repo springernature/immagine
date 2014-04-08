@@ -1,7 +1,6 @@
 source 'http://rubygems.org'
 
 gem "rake"
-gem "sinatra", "~> 1.4.4", require: "sinatra/base"
 gem "rmagick", "~> 2.13.2", require: "RMagick"
 gem "unicorn", "~> 4.8.1"
 
