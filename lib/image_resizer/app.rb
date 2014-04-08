@@ -1,5 +1,9 @@
 module ImageResizer
   class App
+    def logger
+      ImageResizer.logger
+    end
+
     def call(env)
       req = Rack::Request.new(env)
       if req.get?
@@ -33,9 +37,10 @@ module ImageResizer
         raise "Unsupported format: #{format_code}. Please remove it from the whitelist."
       end
 
+      logger.info "sending #{image_path}"
       send_file image
     rescue ImagePathParser::ParseError
-      puts "parsing error #{image_path}"
+      logger.info "image path parsing error #{image_path}"
       return not_found
     end
 

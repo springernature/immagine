@@ -1,5 +1,6 @@
 require 'bundler'
 require "yaml"
+require "logger"
 
 base = File.dirname(__FILE__) + "/image_resizer"
 %w(
@@ -12,6 +13,20 @@ module ImageResizer
   def self.init(environment)
     Bundler.require(:default, environment)
     load_settings(environment)
+    init_logger(environment)
+  end
+
+  def self.init_logger(environment)
+    @logger = if environment == "production"
+      @logger = Logger::Syslog.new("image_resizer", Syslog::LOG_LOCAL0)
+    else
+      Logger.new(STDOUT)
+    end
+    @logger.level = Logger::INFO
+  end
+
+  def self.logger
+    @logger
   end
 
   def self.settings
