@@ -2,9 +2,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     coderay (1.1.0)
-    daemons (1.1.9)
     diff-lcs (1.2.5)
-    eventmachine (1.0.3)
     kgio (2.8.1)
     method_source (0.8.2)
     pry (0.9.12.6)
@@ -27,10 +25,6 @@ GEM
     rspec-mocks (2.14.6)
     slop (3.4.7)
     syslog-logger (1.6.8)
-    thin (1.6.0)
-      daemons (>= 1.0.9)
-      eventmachine (>= 1.0.0)
-      rack (>= 1.5.0)
     unicorn (4.8.1)
       kgio (~> 2.6)
       rack
@@ -46,5 +40,4 @@ DEPENDENCIES
   rmagick (~> 2.13.2)
   rspec
   syslog-logger
-  thin
   unicorn (~> 4.8.1)
