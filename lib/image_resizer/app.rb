@@ -1,19 +1,5 @@
 module ImageResizer
-  module SendFile
-    def send_file(image)
-      data = image.to_blob
-      headers = {'Content-Length' => data.length.to_s}
-      headers['ETag']           ||= Digest::MD5.hexdigest(data)
-      headers['Cache-Control']  ||= 'public, max-age=31557600'
-      headers['Last-Modified']  ||= Time.new.httpdate
-
-      [200, headers, [data]]
-    end
-  end
-
   class App
-    include SendFile
-
     def call(env)
       req = Rack::Request.new(env)
       if req.get?
@@ -21,11 +7,6 @@ module ImageResizer
       else
         not_found
       end
-    end
-
-    def not_found
-      content = "Not found"
-      [404, { "Content-Length" => content.size.to_s }, [content]]
     end
 
     def root(image_path)
@@ -56,6 +37,21 @@ module ImageResizer
     rescue ImagePathParser::ParseError
       puts "parsing error #{image_path}"
       return not_found
+    end
+
+    def send_file(image)
+      data = image.to_blob
+      headers = {'Content-Length' => data.length.to_s}
+      headers['ETag']           ||= Digest::MD5.hexdigest(data)
+      headers['Cache-Control']  ||= 'public, max-age=31557600'
+      headers['Last-Modified']  ||= Time.new.httpdate
+
+      [200, headers, [data]]
+    end
+
+    def not_found
+      content = "Not found"
+      [404, { "Content-Length" => content.size.to_s }, [content]]
     end
   end
 end
