@@ -18,7 +18,7 @@ module ImageResizer
 
   def self.init_logger(environment)
     @logger = if environment == "production"
-      @logger = Logger::Syslog.new("image_resizer", Syslog::LOG_LOCAL0)
+      Logger::Syslog.new("image_resizer", Syslog::LOG_LOCAL0)
     else
       Logger.new(STDOUT)
     end
