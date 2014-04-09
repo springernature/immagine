@@ -6,7 +6,6 @@ development:
     - w100h100
 
   source_folder: ./test-data/src
-  target_folder: ./test-data/target
 
 test:
   size_whitelist:
@@ -16,4 +15,3 @@ test:
     - w100h100
 
   source_folder: ./test-data/src
-  target_folder: ./test-data/target

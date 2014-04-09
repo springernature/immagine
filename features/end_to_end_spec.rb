@@ -4,7 +4,7 @@ require "rack/test"
 include Rack::Test::Methods
 
 def app
-  ImageResizer::App
+  ImageResizer::App.new
 end
 
 describe "Requesting an image" do
