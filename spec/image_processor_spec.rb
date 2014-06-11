@@ -76,6 +76,18 @@ module ImageResizer
           expect(img.compression).to eq(Magick::JPEGCompression)
         end
       end
+
+      it "uses baseline encoding for small images" do
+        img = processor.resize_by_max(20)
+
+        expect(img.interlace).to eq(Magick::NoInterlace)
+      end
+
+      it "uses progressive encoding for bigger images" do
+        img = processor.resize_by_max(600)
+
+        expect(img.interlace).to eq(Magick::PlaneInterlace)
+      end
     end
   end
 end

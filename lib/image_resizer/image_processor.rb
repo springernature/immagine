@@ -50,12 +50,19 @@ module ImageResizer
 
     def resize_image_by_width(width)
       scale_factor = width.to_f / @img.columns.to_f
-      @img.resize(scale_factor)
+      resize(scale_factor)
     end
 
     def resize_image_by_height(height)
       scale_factor = height.to_f / @img.rows.to_f
-      @img.resize(scale_factor)
+      resize(scale_factor)
+    end
+
+    def resize(scale_factor)
+      img = @img.resize(scale_factor)
+      img.compression = Magick::JPEGCompression if img.format == "JPEG"
+      img.interlace = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
+      img
     end
 
     class ProcessingError < StandardError; end
