@@ -36,8 +36,7 @@ module ImageResizer
       else
         raise "Unsupported format: #{format_code}. Please remove it from the whitelist."
       end
-
-      logger.info "sending #{image_path}"
+      image.strip!
       send_file image
     rescue ImagePathParser::ParseError
       logger.info "image path parsing error #{image_path}"
