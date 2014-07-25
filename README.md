@@ -3,7 +3,7 @@
 ## Usage
 
     bundle
-    cp config/application.yml.sample config.yml
+    cp config/application.yml.sample config/application.yml
     rake # it runs specs and features
     foreman start
 
