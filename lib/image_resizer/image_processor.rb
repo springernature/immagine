@@ -46,6 +46,27 @@ module ImageResizer
       resized.crop(Magick::CenterGravity, width, height)
     end
 
+    def resize_relative_to_original
+      original_width  = @img.columns
+      original_height = @img.rows
+
+      if original_width == 0
+        raise ProcessingError.new("The width of the image #{source} is 0")
+      elsif original_height == 0
+        raise ProcessingError.new("The height of the image #{source} is 0")
+      end
+
+      if original_width < 301
+        resize(1)
+      elsif original_width < 1051
+        resize_image_by_width(300)
+      elsif original_width > original_height
+        resize_image_by_width(703)
+      else
+        resize_image_by_height(703)
+      end
+    end
+
     private
 
     def resize_image_by_width(width)

@@ -4,6 +4,7 @@ development:
     - h150
     - m600
     - w100h100
+    - relative
 
   source_folder: ./test-data/src
 
@@ -13,5 +14,6 @@ test:
     - h150
     - m600
     - w100h100
+    - relative
 
   source_folder: ./test-data/src
