@@ -33,6 +33,8 @@ module ImageResizer
         processor.resize_by_max($1.to_i)
       when /\Aw(\d+)h(\d+)\z/
         processor.resize_and_crop($1.to_i, $2.to_i)
+      when /\Arelative\z/
+        processor.resize_relative_to_original
       else
         raise "Unsupported format: #{format_code}. Please remove it from the whitelist."
       end

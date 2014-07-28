@@ -68,6 +68,51 @@ module ImageResizer
       end
     end
 
+    describe "#resize_relative_to_original" do
+      describe "when the image is less than 300px wide" do
+        it "does not resize the image" do
+          img = processor.resize_relative_to_original
+
+          expect(img.columns).to eq(220)
+          expect(img.rows).to eq(328)
+        end
+      end
+
+      describe "when the image is between 301px and 1050px wide" do
+        it "resizes the image to 300px wide" do
+          rotated_source = File.join(File.dirname(source), "matz-rotated.jpg") # image is 328x220
+          processor_for_rotated_image = ImageProcessor.new(rotated_source)
+
+          img = processor_for_rotated_image.resize_relative_to_original
+
+          expect(img.columns).to eq(300)
+          expect(img.rows).to eq(201)
+        end
+      end
+
+      describe "when the image is over 1050px wide" do
+        it "resizes a landscape image to 703px wide" do
+          big_source = File.join(File.dirname(source), "kitten.jpg") # image is 3072x2304
+          processor_for_big_image = ImageProcessor.new(big_source)
+
+          img = processor_for_big_image.resize_relative_to_original
+
+          expect(img.columns).to eq(703)
+          expect(img.rows).to eq(527)
+        end
+
+        it "resizes a portrait image to 703px high" do
+          big_source = File.join(File.dirname(source), "kitten-rotated.jpg") # image is 2304x3072
+          processor_for_big_image = ImageProcessor.new(big_source)
+
+          img = processor_for_big_image.resize_relative_to_original
+
+          expect(img.columns).to eq(527)
+          expect(img.rows).to eq(703)
+        end
+      end
+    end
+
     describe "Properties of produces images" do
       describe "when the format is JPEG" do
         it "uses JPEGCompression" do
