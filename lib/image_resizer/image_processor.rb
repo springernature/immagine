@@ -11,7 +11,11 @@ module ImageResizer
         raise ProcessingError.new("The width of the image #{source} is 0")
       end
 
-      resize_image_by_width(width)
+      if @img.columns < width
+        serve_image(@img)
+      else
+        resize_image_by_width(width)
+      end
     end
 
     def constrain_height(height)
@@ -19,7 +23,11 @@ module ImageResizer
         raise ProcessingError.new("The height of the image #{source} is 0")
       end
 
-      resize_image_by_height(height)
+      if @img.rows < height
+        serve_image(@img)
+      else
+        resize_image_by_height(height)
+      end
     end
 
     def resize_by_max(size)
@@ -57,13 +65,11 @@ module ImageResizer
       end
 
       if original_width < 301
-        resize(1)
+        serve_image(@img)
       elsif original_width < 1051
         resize_image_by_width(300)
-      elsif original_width > original_height
-        resize_image_by_width(703)
       else
-        resize_image_by_height(703)
+        resize_by_max(703)
       end
     end
 
@@ -81,7 +87,11 @@ module ImageResizer
 
     def resize(scale_factor)
       img = @img.resize(scale_factor)
-      img.compression = Magick::JPEGCompression if img.format == "JPEG"
+      serve_image(img)
+    end
+
+    def serve_image(img)
+      img.compression = Magick::JPEGCompression if img.format == 'JPEG'
       img.interlace = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
       img
     end

@@ -14,6 +14,13 @@ module ImageResizer
         expect(img.columns).to eq(110)
         expect(img.rows).to eq(164)
       end
+
+      it "should not increase the size of the image" do
+        img = processor.constrain_width(230)
+
+        expect(img.columns).to eq(220)
+        expect(img.rows).to eq(328)
+      end
     end
 
     describe "#constrain_height" do
@@ -22,6 +29,13 @@ module ImageResizer
 
         expect(img.columns).to eq(110)
         expect(img.rows).to eq(164)
+      end
+
+      it "should not increase the size of the image" do
+        img = processor.constrain_height(330)
+
+        expect(img.columns).to eq(220)
+        expect(img.rows).to eq(328)
       end
     end
 
