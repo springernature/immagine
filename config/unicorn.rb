@@ -1,16 +1,27 @@
-app_folder     = File.absolute_path(File.join(File.dirname(__FILE__), "..", ".."))
-CURRENT_FOLDER = File.join(app_folder, "current")
-SHARED_FOLDER  = File.join(app_folder, "shared")
-LOG_FOLDER     = File.join(SHARED_FOLDER, "log")
+port            = Integer(ENV['PORT'] || 5000)
+no_of_processes = Integer(ENV['PROCESSES'] || 1)
+unix_socket     = ENV['SOCKET'] || '/tmp/image-server.sock'
 
-worker_processes 10
-working_directory(CURRENT_FOLDER + "/")
+listen            port, tcp_nopush: true
+listen            unix_socket
+timeout           15
+preload_app       true
+worker_processes  no_of_processes
 
-timeout 120
+if ENV['USE_SYSLOG']
+  require 'macmillan/utils/logger/factory'
+  require 'macmillan/utils/logger/formatter'
 
-listen File.join(SHARED_FOLDER, "unicorn_image_resizer.sock"), :backlog => 64
+  syslog_logger           = Macmillan::Utils::Logger::Factory.build_logger(:syslog, tag: 'bandiera')
+  syslog_logger.formatter = Macmillan::Utils::Logger::Formatter.new
+  syslog_logger.level     = Logger::INFO
+  logger(syslog_logger)
+end
 
-pid File.join(SHARED_FOLDER, "pids", "unicorn.pid")
+if ENV['WORKING_DIR']
+  working_directory ENV['WORKING_DIR']
+end
 
-stderr_path File.join(LOG_FOLDER, "unicorn.stderr.log")
-stdout_path File.join(LOG_FOLDER, "unicorn.stdout.log")
+if ENV['PID_FILE']
+  pid ENV['PID_FILE']
+end
