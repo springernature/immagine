@@ -12,7 +12,7 @@ if ENV['USE_SYSLOG']
   require 'macmillan/utils/logger/factory'
   require 'macmillan/utils/logger/formatter'
 
-  syslog_logger           = Macmillan::Utils::Logger::Factory.build_logger(:syslog, tag: 'bandiera')
+  syslog_logger           = Macmillan::Utils::Logger::Factory.build_logger(:syslog, tag: 'image-server')
   syslog_logger.formatter = Macmillan::Utils::Logger::Formatter.new
   syslog_logger.level     = Logger::INFO
   logger(syslog_logger)
