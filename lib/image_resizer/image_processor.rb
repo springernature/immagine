@@ -16,7 +16,7 @@ module ImageResizer
       end
 
       if @img.columns <= width
-        serve_image(@img)
+        serve_image
       else
         resize_image_by_width(width)
       end
@@ -28,7 +28,7 @@ module ImageResizer
       end
 
       if @img.rows <= height
-        serve_image(@img)
+        serve_image
       else
         resize_image_by_height(height)
       end
@@ -69,7 +69,7 @@ module ImageResizer
       end
 
       if original_width <= 300
-        serve_image(@img)
+        serve_image
       elsif original_width <= 1050
         resize_image_by_width(300)
       else
@@ -94,7 +94,7 @@ module ImageResizer
       serve_image(img)
     end
 
-    def serve_image(img)
+    def serve_image(img = @img)
       img.compression = Magick::JPEGCompression if img.format == 'JPEG'
       img.interlace = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
       img
