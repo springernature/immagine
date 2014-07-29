@@ -11,7 +11,7 @@ module ImageResizer
         raise ProcessingError.new("The width of the image #{source} is 0")
       end
 
-      if @img.columns < width
+      if @img.columns <= width
         serve_image(@img)
       else
         resize_image_by_width(width)
@@ -23,7 +23,7 @@ module ImageResizer
         raise ProcessingError.new("The height of the image #{source} is 0")
       end
 
-      if @img.rows < height
+      if @img.rows <= height
         serve_image(@img)
       else
         resize_image_by_height(height)
@@ -64,9 +64,9 @@ module ImageResizer
         raise ProcessingError.new("The height of the image #{source} is 0")
       end
 
-      if original_width < 301
+      if original_width <= 300
         serve_image(@img)
-      elsif original_width < 1051
+      elsif original_width <= 1050
         resize_image_by_width(300)
       else
         resize_by_max(703)
