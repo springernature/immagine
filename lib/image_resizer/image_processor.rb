@@ -90,14 +90,14 @@ module ImageResizer
     end
 
     def resize(scale_factor)
-      img = @img.resize(scale_factor)
-      serve_image(img)
+      @img.resize!(scale_factor)
+      serve_image
     end
 
-    def serve_image(img = @img)
-      img.compression = Magick::JPEGCompression if img.format == 'JPEG'
-      img.interlace = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
-      img
+    def serve_image
+      @img.compression = Magick::JPEGCompression if @img.format == 'JPEG'
+      @img.interlace = (@img.columns * @img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
+      @img
     end
 
     class ProcessingError < StandardError; end
