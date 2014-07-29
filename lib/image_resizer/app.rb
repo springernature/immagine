@@ -43,6 +43,8 @@ module ImageResizer
     rescue ImagePathParser::ParseError
       logger.info "image path parsing error #{image_path}"
       return not_found
+    ensure
+      processor.destroy!
     end
 
     def send_file(image)
