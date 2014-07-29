@@ -6,6 +6,10 @@ module ImageResizer
       @img = Magick::Image.read(source).first
     end
 
+    def destroy!
+      @img.destroy!
+    end
+
     def constrain_width(width)
       if @img.columns == 0
         raise ProcessingError.new("The width of the image #{source} is 0")
