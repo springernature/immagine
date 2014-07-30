@@ -48,7 +48,7 @@ module ImageResizer
     end
 
     def send_file(image)
-      data = image.to_blob { self.quality = 60 }
+      data = image.to_blob { self.quality = 85 }
       headers = {
         "Content-Length" => data.length.to_s,
         "Content-Type"   => image.mime_type
