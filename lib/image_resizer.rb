@@ -1,12 +1,15 @@
 require 'bundler'
-require "yaml"
-require "logger"
+require 'yaml'
+require 'logger'
+require 'RMagick'
 
 base = File.dirname(__FILE__) + "/image_resizer"
 %w(
+  version
   app
   image_path_parser
   image_processor
+  middleware
 ).each{ |lib| require "#{base}/#{lib}" }
 
 module ImageResizer

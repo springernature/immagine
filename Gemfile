@@ -11,3 +11,5 @@ group :development, :test do
   gem "rack-test", require: "rack/test"
   gem "pry"
 end
+
+gemspec
