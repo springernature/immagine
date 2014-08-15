@@ -3,8 +3,10 @@ require "rack/test"
 
 include Rack::Test::Methods
 
+FULL_STACK_APP = Rack::Builder.parse_file('config.ru').first
+
 def app
-  ImageResizer::App.new
+  FULL_STACK_APP
 end
 
 describe "Requesting an image" do
