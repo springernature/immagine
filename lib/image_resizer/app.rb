@@ -19,15 +19,24 @@ module ImageResizer
 
       source = File.join(ImageResizer.settings["source_folder"], dir, basename)
 
-      return not_found unless ImageResizer.settings["size_whitelist"].include?(format_code)
-      return not_found unless File.exist?(source)
+      unless ImageResizer.settings["size_whitelist"].include?(format_code)
+        logger.error "404 - format code not found - '#{format_code}'"
+        return not_found
+      end
+
+      unless File.exist?(source)
+        logger.error "404 - original file not found - #{source}"
+        return not_found
+      end
 
       env['image_resizer.path'] = source
       env['image_resizer.format'] = format_code
 
+      logger.info "200 - serving resized image - #{format_code} - #{source}"
+
       [200, {}, []]
     rescue ImagePathParser::ParseError
-      logger.info "image path parsing error #{image_path}"
+      logger.info "404 - image path parsing error - #{image_path}"
       return not_found
     ensure
       @processor.destroy! if @processor
