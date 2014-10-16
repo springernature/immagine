@@ -7,6 +7,7 @@ module ImageResizer
     def call(env)
       req = Rack::Request.new(env)
       if req.get?
+        return heartbeat if req.path == '/heartbeat'
         root(env, req.path)
       else
         not_found
@@ -45,6 +46,11 @@ module ImageResizer
     def not_found
       content = "Not found"
       [404, { "Content-Length" => content.size.to_s }, [content]]
+    end
+
+    def heartbeat
+      content = 'ok'
+      [200, { "Content-Length" => content.size.to_s }, [content]]
     end
   end
 end
