@@ -20,20 +20,6 @@ module ImageResizer
     def init(environment)
       Bundler.require(:default, environment)
       load_settings(environment)
-      init_logger(environment)
-    end
-
-    def init_logger(environment)
-      @logger = if environment == "production"
-        Logger::Syslog.new("image_resizer", Syslog::LOG_LOCAL0)
-      else
-        Logger.new(STDOUT)
-      end
-      @logger.level = Logger::INFO
-    end
-
-    def logger
-      @logger
     end
 
     def settings
@@ -52,10 +38,15 @@ module ImageResizer
       self.settings = settings
     end
 
+    def logger
+      @logger ||= Macmillan::Utils::Logger::Factory.build_logger(:syslog, tag: 'image-resizer')
+    end
+    attr_writer :logger
+
     def statsd
-      environment = ENV["RACK_ENV"] || "development" #FIXME
       @statsd ||= begin
-        statsd = Statsd.new(settings['statsd_host'], settings['statsd_port'])
+        environment      = ENV['RACK_ENV'] || 'development'
+        statsd           = Statsd.new(settings['statsd_host'], settings['statsd_port'])
         statsd.namespace = "image-server-#{environment}"
         Macmillan::Utils::StatsdDecorator.new(statsd, environment, logger)
       end
