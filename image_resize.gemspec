@@ -25,4 +25,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rmagick"
   spec.add_dependency "syslog-logger"
+  spec.add_dependency 'statsd-ruby'
 end

@@ -21,11 +21,13 @@ module ImageResizer
       source = File.join(ImageResizer.settings["source_folder"], dir, basename)
 
       unless ImageResizer.settings["size_whitelist"].include?(format_code)
+        ImageResizer.statsd.increment('asset_format_not_in_whitelist')
         logger.error "404 - format code not found - '#{format_code}'"
         return not_found
       end
 
       unless File.exist?(source)
+        ImageResizer.statsd.increment('asset_not_found')
         logger.error "404 - original file not found - #{source}"
         return not_found
       end
@@ -37,6 +39,7 @@ module ImageResizer
 
       [200, {}, []]
     rescue ImagePathParser::ParseError
+      ImageResizer.statsd.increment('asset_parse_error')
       logger.info "404 - image path parsing error - #{image_path}"
       return not_found
     ensure
@@ -44,13 +47,13 @@ module ImageResizer
     end
 
     def not_found
-      content = "Not found"
-      [404, { "Content-Length" => content.size.to_s }, [content]]
+      content = 'Not found'
+      [404, { 'Content-Length' => content.size.to_s }, [content]]
     end
 
     def heartbeat
       content = 'ok'
-      [200, { "Content-Length" => content.size.to_s }, [content]]
+      [200, { 'Content-Length' => content.size.to_s }, [content]]
     end
   end
 end
