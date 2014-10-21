@@ -9,7 +9,9 @@ module ImageResizer
       path    = env['image_resizer.path']
       format  = env['image_resizer.format']
       if status == 200 && path.to_s != '' && format.to_s != ''
-        process_image(path, format)
+        ImageResizer.statsd.time('asset_resize_request') do
+          process_image(path, format)
+        end
       else
         [status, headers, response]
       end

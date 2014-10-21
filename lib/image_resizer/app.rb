@@ -8,9 +8,7 @@ module ImageResizer
       req = Rack::Request.new(env)
       if req.get?
         return heartbeat if req.path == '/heartbeat'
-        ImageResizer.statsd.time('asset_request') do
-          root(env, req.path)
-        end
+        root(env, req.path)
       else
         not_found
       end
