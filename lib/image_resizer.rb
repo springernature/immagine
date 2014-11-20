@@ -46,9 +46,5 @@ module ImageResizer
   end
 end
 
-require_relative 'image_resizer/version'
-require_relative 'image_resizer/app'
-require_relative 'image_resizer/image_path_parser'
 require_relative 'image_resizer/image_processor'
-require_relative 'image_resizer/middleware'
 require_relative 'image_resizer/service'

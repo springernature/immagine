@@ -10,7 +10,7 @@ RSpec.configure do |config|
   config.before :suite do
     ImageResizer.init('test')
 
-    logger       = Macmillan::Utils::Logger::Factory.build_logger
+    logger       = Macmillan::Utils::Logger::Factory.build_logger(:null)
     logger.level = Logger::ERROR
 
     ImageResizer.logger = logger

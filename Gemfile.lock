@@ -12,14 +12,6 @@ GIT
       syslog-logger
       webmock
 
-PATH
-  remote: .
-  specs:
-    image_resizer (0.1.0)
-      rmagick
-      statsd-ruby
-      syslog-logger
-
 GEM
   remote: http://rubygems.org/
   specs:
@@ -106,8 +98,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler (~> 1.3)
-  image_resizer!
   macmillan-utils!
   pry
   rack-contrib
@@ -117,4 +107,5 @@ DEPENDENCIES
   rspec
   shotgun
   sinatra
+  statsd-ruby
   unicorn
