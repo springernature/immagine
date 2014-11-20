@@ -1,27 +1,15 @@
-port            = Integer(ENV['PORT'] || 5000)
-no_of_processes = Integer(ENV['PROCESSES'] || 1)
-unix_socket     = ENV['SOCKET'] || '/tmp/image-server.sock'
+APP_ROOT = File.expand_path(File.dirname(File.dirname(__FILE__)))
 
-listen            port, tcp_nopush: true
-listen            unix_socket
+$LOAD_PATH.unshift File.join(APP_ROOT, 'lib')
+
+require 'image_resizer'
+
+listen            Integer(ENV['PORT'] || 5000), tcp_nopush: true
+listen            ENV['SOCKET'] || '/tmp/image-server.sock'
 timeout           15
 preload_app       true
-worker_processes  no_of_processes
+worker_processes  Integer(ENV['PROCESSES'] || 1)
+logger            ImageResizer.logger
 
-if ENV['USE_SYSLOG']
-  require 'macmillan/utils/logger/factory'
-  require 'macmillan/utils/logger/formatter'
-
-  syslog_logger           = Macmillan::Utils::Logger::Factory.build_logger(:syslog, tag: 'image-server')
-  syslog_logger.formatter = Macmillan::Utils::Logger::Formatter.new
-  syslog_logger.level     = Logger::INFO
-  logger(syslog_logger)
-end
-
-if ENV['WORKING_DIR']
-  working_directory ENV['WORKING_DIR']
-end
-
-if ENV['PID_FILE']
-  pid ENV['PID_FILE']
-end
+pid               ENV['PID_FILE'] if ENV['PID_FILE']
+working_directory ENV['WORKING_DIR'] if ENV['WORKING_DIR']

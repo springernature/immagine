@@ -17,15 +17,13 @@ module ImageResizer
       @settings ||= {}
     end
 
-    def settings=(settings)
-      @settings = settings
-    end
+    attr_writer :settings
 
     def load_settings(environment)
-      file_path = File.join(__dir__, "../config", "application.yml")
+      file_path = File.join(__dir__, '../config', 'application.yml')
       all = YAML.load_file(file_path)
       settings = all[environment]
-      raise "empty settings for environment `#{environment}`" if settings.nil?
+      fail "empty settings for environment `#{environment}`" if settings.nil?
       self.settings = settings
     end
 

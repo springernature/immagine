@@ -3,12 +3,11 @@ require 'json'
 
 module ImageResizer
   class Service < Sinatra::Base
-
     before do
-      http_headers = request.env.dup.select { |key, val| key =~ /\AHTTP_/ }
+      http_headers = request.env.dup.select { |key, _val| key =~ /\AHTTP_/ }
       http_headers.delete('HTTP_COOKIE')
 
-      ImageResizer.logger.error "HTTP HEADERS:"
+      ImageResizer.logger.error 'HTTP HEADERS:'
       ImageResizer.logger.error http_headers
     end
 
@@ -62,17 +61,17 @@ module ImageResizer
 
       image = case format
               when /\Aw(\d+)\z/
-                processor.constrain_width($1.to_i)
+                processor.constrain_width(Regexp.last_match[1].to_i)
               when /\Ah(\d+)\z/
-                processor.constrain_height($1.to_i)
+                processor.constrain_height(Regexp.last_match[1].to_i)
               when /\Am(\d+)\z/
-                processor.resize_by_max($1.to_i)
+                processor.resize_by_max(Regexp.last_match[1].to_i)
               when /\Aw(\d+)h(\d+)\z/
-                processor.resize_and_crop($1.to_i, $2.to_i)
+                processor.resize_and_crop(Regexp.last_match[1].to_i, Regexp.last_match[2].to_i)
               when /\Arelative\z/
                 processor.resize_relative_to_original
               else
-                raise "Unsupported format: #{format}. Please remove it from the whitelist."
+                fail "Unsupported format: #{format}. Please remove it from the whitelist."
               end
 
       image.strip!
