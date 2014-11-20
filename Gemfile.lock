@@ -1,6 +1,6 @@
 GIT
   remote: git@github.com:nature/macmillan-utils.git
-  revision: 617faec1951949385f410b1df31fb19e6a846b0e
+  revision: a1a566e6a210d35e789d218f8db30f51513cd99e
   specs:
     macmillan-utils (0.0.1)
       codeclimate-test-reporter
@@ -38,7 +38,7 @@ GEM
     method_source (0.8.2)
     multi_json (1.10.1)
     multi_test (0.1.1)
-    parser (2.2.0.pre.5)
+    parser (2.2.0.pre.8)
       ast (>= 1.1, < 3.0)
       slop (~> 3.4, >= 3.4.5)
     powerpack (0.0.9)
@@ -67,13 +67,13 @@ GEM
     rspec-mocks (3.1.3)
       rspec-support (~> 3.1.0)
     rspec-support (3.1.2)
-    rubocop (0.26.1)
+    rubocop (0.27.1)
       astrolabe (~> 1.3)
-      parser (>= 2.2.0.pre.4, < 3.0)
+      parser (>= 2.2.0.pre.7, < 3.0)
       powerpack (~> 0.0.6)
       rainbow (>= 1.99.1, < 3.0)
       ruby-progressbar (~> 1.4)
-    ruby-progressbar (1.6.0)
+    ruby-progressbar (1.7.0)
     safe_yaml (1.0.4)
     shotgun (0.9)
       rack (>= 1.0)
@@ -84,14 +84,14 @@ GEM
     simplecov-html (0.8.0)
     simplecov-rcov (0.2.3)
       simplecov (>= 0.4.1)
-    slop (3.4.7)
+    slop (3.6.0)
     statsd-ruby (1.2.1)
     syslog-logger (1.6.8)
     unicorn (4.8.1)
       kgio (~> 2.6)
       rack
       raindrops (~> 0.7)
-    webmock (1.19.0)
+    webmock (1.20.4)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
 
