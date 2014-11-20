@@ -6,6 +6,13 @@ module ImageResizer
 
     def call(env)
       status, headers, response = @app.call(env)
+
+      http_headers = env.select { |k,v| k =~ /^HTTP_/ }
+      http_headers.delete("HTTP_COOKIE")
+
+      ImageResizer.logger.error "HTTP HEADERS:"
+      ImageResizer.logger.error http_headers
+
       path    = env['image_resizer.path']
       format  = env['image_resizer.format']
       if status == 200 && path.to_s != '' && format.to_s != ''
