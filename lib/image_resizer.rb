@@ -6,15 +6,6 @@ require 'RMagick'
 require 'statsd-ruby'
 require 'macmillan/utils'
 
-base = File.dirname(__FILE__) + "/image_resizer"
-%w(
-  version
-  app
-  image_path_parser
-  image_processor
-  middleware
-).each{ |lib| require "#{base}/#{lib}" }
-
 module ImageResizer
   class << self
     def init(environment)
@@ -54,3 +45,10 @@ module ImageResizer
     attr_writer :statsd
   end
 end
+
+require_relative 'image_resizer/version'
+require_relative 'image_resizer/app'
+require_relative 'image_resizer/image_path_parser'
+require_relative 'image_resizer/image_processor'
+require_relative 'image_resizer/middleware'
+require_relative 'image_resizer/service'
