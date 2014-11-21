@@ -1,6 +1,6 @@
 GIT
   remote: git@github.com:nature/macmillan-utils.git
-  revision: a1a566e6a210d35e789d218f8db30f51513cd99e
+  revision: db8dd08176760c2e065f09689dcddc261f910829
   specs:
     macmillan-utils (0.0.1)
       codeclimate-test-reporter
