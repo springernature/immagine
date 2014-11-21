@@ -6,15 +6,6 @@ require 'RMagick'
 require 'statsd-ruby'
 require 'macmillan/utils'
 
-base = File.dirname(__FILE__) + "/image_resizer"
-%w(
-  version
-  app
-  image_path_parser
-  image_processor
-  middleware
-).each{ |lib| require "#{base}/#{lib}" }
-
 module ImageResizer
   class << self
     def init(environment)
@@ -26,15 +17,13 @@ module ImageResizer
       @settings ||= {}
     end
 
-    def settings=(settings)
-      @settings = settings
-    end
+    attr_writer :settings
 
     def load_settings(environment)
-      file_path = File.join(__dir__, "../config", "application.yml")
+      file_path = File.join(__dir__, '../config', 'application.yml')
       all = YAML.load_file(file_path)
       settings = all[environment]
-      raise "empty settings for environment `#{environment}`" if settings.nil?
+      fail "empty settings for environment `#{environment}`" if settings.nil?
       self.settings = settings
     end
 
@@ -54,3 +43,6 @@ module ImageResizer
     attr_writer :statsd
   end
 end
+
+require_relative 'image_resizer/image_processor'
+require_relative 'image_resizer/service'

@@ -12,7 +12,7 @@ module ImageResizer
 
     def constrain_width(width)
       if @img.columns == 0
-        raise ProcessingError.new("The width of the image #{source} is 0")
+        fail ProcessingError.new("The width of the image #{source} is 0")
       end
 
       if @img.columns <= width
@@ -24,7 +24,7 @@ module ImageResizer
 
     def constrain_height(height)
       if @img.rows == 0
-        raise ProcessingError.new("The height of the image #{source} is 0")
+        fail ProcessingError.new("The height of the image #{source} is 0")
       end
 
       if @img.rows <= height
@@ -44,7 +44,7 @@ module ImageResizer
 
     def resize_and_crop(width, height)
       if @img.rows == 0
-        raise ProcessingError.new("The height of the image #{source} is 0")
+        fail ProcessingError.new("The height of the image #{source} is 0")
       end
 
       original_ratio = @img.columns.to_f / @img.rows.to_f
@@ -63,9 +63,9 @@ module ImageResizer
       original_height = @img.rows
 
       if original_width == 0
-        raise ProcessingError.new("The width of the image #{source} is 0")
+        fail ProcessingError.new("The width of the image #{source} is 0")
       elsif original_height == 0
-        raise ProcessingError.new("The height of the image #{source} is 0")
+        fail ProcessingError.new("The height of the image #{source} is 0")
       end
 
       if original_width <= 300

@@ -1,9 +1,12 @@
-require 'rack/contrib/try_static'
-require File.dirname(__FILE__) + "/lib/image_resizer.rb"
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), 'lib')
 
-env = ENV["RACK_ENV"] || "development"
+env = ENV['RACK_ENV'] || 'development'
+
+require 'rack/contrib/try_static'
+require 'image_resizer'
+
 ImageResizer.init(env)
 
+use Rack::CommonLogger, ImageResizer.logger
 use Rack::TryStatic, urls: [''], root: ImageResizer.settings['source_folder']
-use ImageResizer::Middleware
-run ImageResizer::App.new
+run ImageResizer::Service.new
