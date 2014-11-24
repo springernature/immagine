@@ -6,7 +6,6 @@ gem 'sinatra'
 gem 'statsd-ruby'
 gem 'unicorn'
 gem 'macmillan-utils', git: 'git@github.com:nature/macmillan-utils.git', require: false
-gem 'rack-contrib'
 
 group :development do
   gem 'shotgun'

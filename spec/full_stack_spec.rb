@@ -9,7 +9,7 @@ end
 
 describe 'Requesting an original (unaltered) image' do
   it 'is ok' do
-    get '/images/matz.jpg'
+    get '/live/images/matz.jpg'
     expect(last_response).to be_ok
   end
 end
@@ -24,14 +24,14 @@ describe 'Requesting a resized image' do
 
   describe 'When the format code is not in the whitelist' do
     it 'returns a 404' do
-      get '/foo/wrong_format/bar.jpg'
+      get '/live/foo/wrong_format/bar.jpg'
       expect(last_response.status).to eq(404)
     end
   end
 
   describe 'When the source image does not exist' do
     it 'returns a 404' do
-      get "/foo/#{ImageResizer.settings['size_whitelist'].sample}/bar.jpg"
+      get "/live/foo/#{ImageResizer.settings['size_whitelist'].sample}/bar.jpg"
       expect(last_response.status).to eq(404)
     end
   end
@@ -39,7 +39,7 @@ describe 'Requesting a resized image' do
   describe 'When the format code is valid' do
     it 'returns a 200' do
       ImageResizer.settings['size_whitelist'].each do |f|
-        get "/images/#{f}/matz.jpg"
+        get "/live/images/#{f}/matz.jpg"
         expect(last_response.status).to eq(200)
       end
     end
