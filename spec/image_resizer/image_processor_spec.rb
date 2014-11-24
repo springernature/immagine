@@ -4,7 +4,7 @@ module ImageResizer
   describe ImageProcessor do
     let(:test_folder) { File.join(__dir__, '..', '..', 'test-data') }
     # the original image is 220x328
-    let(:source)      { File.join(test_folder, 'src', 'images', 'matz.jpg') }
+    let(:source)      { File.join(test_folder, 'src', 'live', 'images', 'matz.jpg') }
     let(:processor)   { ImageProcessor.new(source) }
 
     describe '#constrain_width' do
