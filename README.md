@@ -9,7 +9,7 @@
 
 Go to:
 
-    http://localhost:3000/images/w250/matz.jpg
+    http://localhost:3000/live/images/w250/matz.jpg
 
 ## Configuration
 
