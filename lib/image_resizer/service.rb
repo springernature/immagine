@@ -79,8 +79,16 @@ module ImageResizer
       elsif dir =~ %r{\A/live}
         cache_control :public, max_age: 86400
       else
-        cache_control :private, max_age: 0
+        cache_control :private, :no_store, max_age: 0
       end
+
+      if response['Cache-Control'].include? 'private'
+        prevent_storage_on_akamai
+      end
+    end
+
+    def prevent_storage_on_akamai
+      response['Edge-Control'] = 'no-store, max-age=0'
     end
 
     def process_image(path, format)
