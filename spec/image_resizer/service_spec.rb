@@ -143,6 +143,68 @@ describe ImageResizer::Service do
           end
         end
       end
+
+      context 'stale cache revalidation' do
+        context 'images cached for a year or more' do
+          it 'sets Stale-While-Revalidate and Stale-If-Error for a month' do
+            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=31536000' }
+
+            expect(last_response).to be_ok
+            expect(last_response.header['Stale-While-Revalidate']).to eq('2628000')
+            expect(last_response.header['Stale-If-Error']).to eq('2628000')
+          end
+        end
+
+        context 'images cached for a month or more' do
+          it 'sets Stale-While-Revalidate and Stale-If-Error for a week' do
+            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=2628000' }
+
+            expect(last_response).to be_ok
+            expect(last_response.header['Stale-While-Revalidate']).to eq('86400')
+            expect(last_response.header['Stale-If-Error']).to eq('86400')
+          end
+        end
+
+        context 'images cached for a week or more' do
+          it 'sets Stale-While-Revalidate and Stale-If-Error for an hour' do
+            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=86400' }
+
+            expect(last_response).to be_ok
+            expect(last_response.header['Stale-While-Revalidate']).to eq('3600')
+            expect(last_response.header['Stale-If-Error']).to eq('3600')
+          end
+        end
+
+        context 'images cached for an hour or more' do
+          it 'sets Stale-While-Revalidate and Stale-If-Error for a minute' do
+            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=3600' }
+
+            expect(last_response).to be_ok
+            expect(last_response.header['Stale-While-Revalidate']).to eq('60')
+            expect(last_response.header['Stale-If-Error']).to eq('60')
+          end
+        end
+
+        context 'images cached for less than an hour' do
+          it 'does not set Stale-While-Revalidate and Stale-If-Error' do
+            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=500' }
+
+            expect(last_response).to be_ok
+            expect(last_response.header['Stale-While-Revalidate']).to be_nil
+            expect(last_response.header['Stale-If-Error']).to be_nil
+          end
+        end
+
+        context 'images with no max-age' do
+          it 'does not set Stale-While-Revalidate and Stale-If-Error' do
+            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'public' }
+
+            expect(last_response).to be_ok
+            expect(last_response.header['Stale-While-Revalidate']).to be_nil
+            expect(last_response.header['Stale-If-Error']).to be_nil
+          end
+        end
+      end
     end
 
     context 'when the file does not exist' do
