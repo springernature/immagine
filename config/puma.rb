@@ -20,7 +20,7 @@ preload_app!
 threads           0, 16
 workers           Integer(ENV['PROCESSES'] || 2)
 
-bind              "tcp://127.0.0.1:#{port}"
+bind              "tcp://0.0.0.0:#{port}"
 bind              "unix://#{socket}"
 
 tag               'image_resizer'
