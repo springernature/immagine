@@ -5,6 +5,7 @@ gem 'rmagick', '~> 2.13.2', require: 'RMagick'
 gem 'sinatra'
 gem 'statsd-ruby'
 gem 'unicorn'
+gem 'puma'
 gem 'macmillan-utils', git: 'git@github.com:nature/macmillan-utils.git', require: false
 
 group :development do
