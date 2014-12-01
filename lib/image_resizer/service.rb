@@ -85,6 +85,29 @@ module ImageResizer
       if response['Cache-Control'].include? 'private'
         prevent_storage_on_akamai
       end
+      set_stale_headers
+    end
+
+    def set_stale_headers
+      if response['Cache-Control'] =~ /max-age=(\d+)/
+        max_age   = Regexp.last_match[1].to_i
+        stale_age = if max_age >= 31536000
+                      2628000
+                    elsif max_age >= 2628000
+                      86400
+                    elsif max_age >= 86400
+                      3600
+                    elsif max_age >= 3600
+                      60
+                    else
+                      0
+                    end
+
+        if stale_age > 0
+          response['Stale-While-Revalidate'] = stale_age.to_s
+          response['Stale-If-Error']         = stale_age.to_s
+        end
+      end
     end
 
     def prevent_storage_on_akamai
