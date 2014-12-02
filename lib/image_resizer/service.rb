@@ -58,7 +58,7 @@ module ImageResizer
       set_cache_control_headers(request, dir)
 
       # generate image
-      image = statsd.time('asset_resize_request') do
+      image = statsd.time('asset_resize') do
         process_image(source_file, format_code)
       end
 
