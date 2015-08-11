@@ -1,26 +1,13 @@
-development:
-  size_whitelist:
-    - w100h100  # Example cropped thumbnail
-    - h125      # At a glance thumbnails
-    - w250      # Figure index page thumbnails
-    - w450      # At a glance popups
-    - w926      # Full size figures
-    - m685      # Article figures
-    - relative  # Illustrations
+size_whitelist:
+  - w100h100  # Example cropped thumbnail
+  - h125      # At a glance thumbnails
+  - w250      # Figure index page thumbnails
+  - w450      # At a glance popups
+  - w926      # Full size figures
+  - m685      # Article figures
+  - relative  # Illustrations
 
-  source_folder: ./test-data/src
+source_folder: ./test-data/src
 
-  statsd_host:  192.168.88.20
-  statds_port:  8125
-
-test:
-  size_whitelist:
-    - w100h100
-    - h125
-    - w250
-    - w450
-    - w926
-    - m685
-    - relative
-
-  source_folder: ./test-data/src
+statsd_host:  192.168.88.20
+statds_port:  8125
