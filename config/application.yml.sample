@@ -10,4 +10,4 @@ size_whitelist:
 source_folder: ./test-data/src
 
 statsd_host:  192.168.88.20
-statds_port:  8125
+statsd_port:  8125
