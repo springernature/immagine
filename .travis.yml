@@ -8,4 +8,5 @@ branches:
   - master
 
 script:
-- bundle exec rspec --format documentation
+  - cp config/application.yml.sample config/application.yml
+  - bundle exec rspec --format documentation
