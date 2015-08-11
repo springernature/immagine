@@ -8,9 +8,6 @@ module ImageResizer
     before do
       http_headers = request.env.dup.select { |key, _val| key =~ /\AHTTP_/ }
       http_headers.delete('HTTP_COOKIE')
-
-      ImageResizer.logger.error 'HTTP HEADERS:'
-      ImageResizer.logger.error http_headers
     end
 
     get '/heartbeat' do
@@ -77,25 +74,24 @@ module ImageResizer
       if custom_cache_control = request.env['HTTP_X_CACHE_CONTROL']
         cache_control custom_cache_control
       elsif dir =~ %r{\A/live}
-        cache_control :public, max_age: 86400
+        cache_control :public, max_age: 86_400
       else
         cache_control :private, :no_store, max_age: 0
       end
 
-      if response['Cache-Control'].include? 'private'
-        prevent_storage_on_akamai
-      end
+      prevent_storage_on_akamai if response['Cache-Control'].include? 'private'
+
       set_stale_headers
     end
 
     def set_stale_headers
       if response['Cache-Control'] =~ /max-age=(\d+)/
         max_age   = Regexp.last_match[1].to_i
-        stale_age = if max_age >= 31536000
-                      2628000
-                    elsif max_age >= 2628000
-                      86400
-                    elsif max_age >= 86400
+        stale_age = if max_age >= 31_536_000
+                      2_628_000
+                    elsif max_age >= 2_628_000
+                      86_400
+                    elsif max_age >= 86_400
                       3600
                     elsif max_age >= 3600
                       60

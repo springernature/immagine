@@ -14,7 +14,7 @@ worker_timeout    15
 pidfile           ENV['PID_FILE'] if ENV['PID_FILE']
 state_path        ENV['STATE_FILE'] if ENV['STATE_FILE']
 
-# TODO Figure out a way to log to syslog
+# TODO: Figure out a way to log to syslog
 
 preload_app!
 threads           0, 16

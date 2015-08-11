@@ -72,7 +72,7 @@ describe ImageResizer::Service do
       context 'Cache-Control' do
         context 'when a X-Cache-Control HTTP header HAS been passed' do
           it 'sets the cache and edge control headers accordingly for public resources' do
-            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=60' }
+            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=60' }
 
             expect(last_response).to be_ok
             expect(last_response.header['Cache-Control']).to eq('public, max-age=60')
@@ -80,7 +80,7 @@ describe ImageResizer::Service do
           end
 
           it 'sets the cache and edge control headers accordingly for private resources' do
-            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'private, max-age=30' }
+            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'private, max-age=30' }
 
             expect(last_response).to be_ok
             expect(last_response.header['Cache-Control']).to eq('private, max-age=30')
@@ -91,14 +91,14 @@ describe ImageResizer::Service do
         context 'when a X-Cache-Control HTTP header HAS NOT been passed' do
           context 'when the image requested is a LIVE asset' do
             it 'sets the Cache-Control as PUBLIC' do
-              get "/live/images/kitten.jpg"
+              get '/live/images/kitten.jpg'
 
               expect(last_response).to be_ok
               expect(last_response.header['Cache-Control']).to include('public')
             end
 
             it 'sets the Max-Age as 1 day' do
-              get "/live/images/kitten.jpg"
+              get '/live/images/kitten.jpg'
 
               expect(last_response).to be_ok
               expect(last_response.header['Cache-Control']).to include('max-age=86400')
@@ -107,35 +107,35 @@ describe ImageResizer::Service do
 
           context 'when the image requested is a STAGING asset' do
             it 'sets the Cache-Control as PRIVATE' do
-              get "/staging/images/kitten.jpg"
+              get '/staging/images/kitten.jpg'
 
               expect(last_response).to be_ok
               expect(last_response.header['Cache-Control']).to include('private')
             end
 
             it 'sets Cache-Control as no-store' do
-              get "/staging/images/kitten.jpg"
+              get '/staging/images/kitten.jpg'
 
               expect(last_response).to be_ok
               expect(last_response.header['Cache-Control']).to include('no-store')
             end
 
             it 'sets the Max-Age as 0' do
-              get "/staging/images/kitten.jpg"
+              get '/staging/images/kitten.jpg'
 
               expect(last_response).to be_ok
               expect(last_response.header['Cache-Control']).to include('max-age=0')
             end
 
             it 'sets Edge-Control as no-store for Akamai' do
-              get "/staging/images/kitten.jpg"
+              get '/staging/images/kitten.jpg'
 
               expect(last_response).to be_ok
               expect(last_response.header['Edge-Control']).to include('no-store')
             end
 
             it 'sets the Edge-Control cache TTL for Akamai' do
-              get "/staging/images/kitten.jpg"
+              get '/staging/images/kitten.jpg'
 
               expect(last_response).to be_ok
               expect(last_response.header['Edge-Control']).to include('max-age=0')
@@ -147,7 +147,7 @@ describe ImageResizer::Service do
       context 'stale cache revalidation' do
         context 'images cached for a year or more' do
           it 'sets Stale-While-Revalidate and Stale-If-Error for a month' do
-            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=31536000' }
+            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=31536000' }
 
             expect(last_response).to be_ok
             expect(last_response.header['Stale-While-Revalidate']).to eq('2628000')
@@ -157,7 +157,7 @@ describe ImageResizer::Service do
 
         context 'images cached for a month or more' do
           it 'sets Stale-While-Revalidate and Stale-If-Error for a week' do
-            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=2628000' }
+            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=2628000' }
 
             expect(last_response).to be_ok
             expect(last_response.header['Stale-While-Revalidate']).to eq('86400')
@@ -167,7 +167,7 @@ describe ImageResizer::Service do
 
         context 'images cached for a week or more' do
           it 'sets Stale-While-Revalidate and Stale-If-Error for an hour' do
-            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=86400' }
+            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=86400' }
 
             expect(last_response).to be_ok
             expect(last_response.header['Stale-While-Revalidate']).to eq('3600')
@@ -177,7 +177,7 @@ describe ImageResizer::Service do
 
         context 'images cached for an hour or more' do
           it 'sets Stale-While-Revalidate and Stale-If-Error for a minute' do
-            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=3600' }
+            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=3600' }
 
             expect(last_response).to be_ok
             expect(last_response.header['Stale-While-Revalidate']).to eq('60')
@@ -187,7 +187,7 @@ describe ImageResizer::Service do
 
         context 'images cached for less than an hour' do
           it 'does not set Stale-While-Revalidate and Stale-If-Error' do
-            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=500' }
+            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=500' }
 
             expect(last_response).to be_ok
             expect(last_response.header['Stale-While-Revalidate']).to be_nil
@@ -197,7 +197,7 @@ describe ImageResizer::Service do
 
         context 'images with no max-age' do
           it 'does not set Stale-While-Revalidate and Stale-If-Error' do
-            get "/live/images/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'public' }
+            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public' }
 
             expect(last_response).to be_ok
             expect(last_response.header['Stale-While-Revalidate']).to be_nil
