@@ -10,22 +10,16 @@ module ImageResizer
   class << self
     def init(environment)
       Bundler.require(:default, environment)
-      load_settings(environment)
+      settings
     end
 
     def settings
-      @settings ||= {}
+      @settings ||= begin
+        Macmillan::Utils::Settings.backends = [Macmillan::Utils::Settings::AppYamlBackend]
+        Macmillan::Utils::Settings.instance
+      end
     end
-
     attr_writer :settings
-
-    def load_settings(environment)
-      file_path = File.join(__dir__, '../config', 'application.yml')
-      all = YAML.load_file(file_path)
-      settings = all[environment]
-      fail "empty settings for environment `#{environment}`" if settings.nil?
-      self.settings = settings
-    end
 
     def logger
       @logger ||= Macmillan::Utils::Logger::Factory.build_logger(:syslog, tag: 'image-resizer')
@@ -35,7 +29,7 @@ module ImageResizer
     def statsd
       @statsd ||= begin
         environment      = ENV['RACK_ENV'] || 'development'
-        statsd           = Statsd.new(settings['statsd_host'], settings['statsd_port'])
+        statsd           = Statsd.new(settings.lookup('statsd_host'), settings.lookup('statsd_port'))
         statsd.namespace = statsd_namespace
         Macmillan::Utils::StatsdDecorator.new(statsd, environment, logger)
       end

@@ -26,7 +26,7 @@ module ImageResizer
       end
 
       # check to see if this is an *actual* filepath
-      static_file = File.join(ImageResizer.settings['source_folder'], dir, format_code, basename)
+      static_file = File.join(ImageResizer.settings.lookup('source_folder'), dir, format_code, basename)
 
       if File.exist?(static_file)
         etag calculate_etags(dir, format_code, basename, static_file)
@@ -37,13 +37,13 @@ module ImageResizer
       end
 
       # check the format_code is on the whitelist
-      unless ImageResizer.settings['size_whitelist'].include?(format_code)
+      unless ImageResizer.settings.lookup('size_whitelist').include?(format_code)
         log_error("404, format code not found (#{format_code}).")
         statsd.increment('asset_format_not_in_whitelist')
         not_found
       end
 
-      source_file = File.join(ImageResizer.settings['source_folder'], dir, basename)
+      source_file = File.join(ImageResizer.settings.lookup('source_folder'), dir, basename)
 
       # check the file exists
       unless File.exist?(source_file)

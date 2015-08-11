@@ -1,0 +1,11 @@
+sudo: false
+cache: bundler
+language: ruby
+
+# Ensure we don't build for *every* commit (doesn't apply to PR builds)
+branches:
+  only:
+  - master
+
+script:
+- bundle exec rspec --format documentation
