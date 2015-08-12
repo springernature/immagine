@@ -1,7 +1,9 @@
 require 'bundler'
 require 'yaml'
 require 'logger'
+
 require 'RMagick'
+require_relative 'r_magick_image_analysis'
 
 require 'statsd-ruby'
 require 'macmillan/utils'
