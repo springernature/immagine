@@ -5,6 +5,10 @@ module ImageResizer
   class Service < Sinatra::Base
     DEFAULT_IMAGE_QUALITY = 85
 
+    configure do
+      set :root, File.join(File.dirname(__FILE__), 'service')
+    end
+
     before do
       http_headers = request.env.dup.select { |key, _val| key =~ /\AHTTP_/ }
       http_headers.delete('HTTP_COOKIE')
@@ -12,6 +16,34 @@ module ImageResizer
 
     get '/heartbeat' do
       'ok'
+    end
+
+    get '/analyse-test' do
+      image_dir = File.join(ImageResizer.settings.lookup('source_folder'), '..', 'analyse-test')
+      @images   = Dir.glob("#{image_dir}/*").map do |source|
+        image = Magick::Image.read(source).first.extend(RMagickImageAnalysis)
+
+        {
+          file: source.sub(image_dir, '/analyse-test')
+        }.merge(image.color_analysis)
+      end.compact
+
+      erb :analyse_test
+    end
+
+    get %r{\A/analyse/(.+)\z} do |path|
+      source = File.join(ImageResizer.settings.lookup('source_folder'), path)
+      not_found unless File.exist?(source)
+
+      etag calculate_etags('wibble', 'wobble', source, source)
+
+      image = Magick::Image.read(source).first.extend(RMagickImageAnalysis)
+
+      content_type :json
+
+      {
+        file: path
+      }.merge(image.color_analysis).to_json
     end
 
     get %r{\A(.+)?/([^/]+)/([^/]+)\z} do |dir, format_code, basename|

@@ -1,0 +1,28 @@
+<table border="1" cellpadding="5">
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th colspan="4">Average Colour</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>Hex</th>
+      <th>RGB</th>
+      <th>Luma</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @images.each do |img| %>
+      <tr>
+        <td><img src="<%= img[:file] %>" width="400" /></td>
+        <td><%= img[:average_colour][:hex] %></td>
+        <td><%= img[:average_colour][:rgb] %></td>
+        <td><%= img[:average_colour][:luma] %></td>
+        <td>
+          <div style="border: 1px solid #999; background-color: <%= img[:average_colour][:hex] %>; width: 75px; height: 75px;"></div>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

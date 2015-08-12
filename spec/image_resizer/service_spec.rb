@@ -22,6 +22,81 @@ describe ImageResizer::Service do
     end
   end
 
+  describe 'Image colour analysis' do
+    describe 'GET /analyse-test' do
+      before do
+        get '/analyse-test'
+      end
+
+      it 'returns a 200 response' do
+        expect(last_response.status).to eq(200)
+      end
+    end
+
+    describe 'GET /analyse/<IMAGE>' do
+      context 'when the file exists' do
+        it 'returns a 200 response' do
+          get '/analyse/live/images/kitten.jpg'
+          expect(last_response.status).to eq(200)
+        end
+
+        it 'returns a JSON object' do
+          get '/analyse/live/images/kitten.jpg'
+
+          json = JSON.parse(last_response.body, symbolize_names: true)
+
+          expect(json).to have_key(:file)
+          expect(json).to have_key(:average_colour)
+
+          average_colour = json.fetch(:average_colour)
+
+          expect(average_colour).to have_key(:rgb)
+          expect(average_colour).to have_key(:hex)
+          expect(average_colour).to have_key(:luma)
+        end
+
+        context 'ETAGS' do
+          context 'when the file has not changed between requests' do
+            it 'responds with the same Etags' do
+              get '/analyse/live/images/kitten.jpg'
+              expect(last_response).to be_ok
+
+              first_etag = last_response.header['ETag']
+
+              get '/analyse/live/images/kitten.jpg'
+              expect(last_response).to be_ok
+              expect(last_response.header['ETag']).to eq(first_etag)
+            end
+          end
+
+          context 'when the file HAS changed between requests' do
+            it 'responds with different Etags' do
+              expect(File)
+                .to receive(:mtime)
+                .and_return(Time.utc(2014, 1, 1), Time.utc(2014, 1, 2))
+
+              get '/analyse/live/images/kitten.jpg'
+              expect(last_response).to be_ok
+
+              first_etag = last_response.header['ETag']
+
+              get '/analyse/live/images/kitten.jpg'
+              expect(last_response).to be_ok
+              expect(last_response.header['ETag']).to_not eq(first_etag)
+            end
+          end
+        end
+      end
+
+      context 'when the file does not exist' do
+        it 'returns a 404' do
+          get '/analyse/live/images/matzwibble.jpg'
+          expect(last_response.status).to eq(404)
+        end
+      end
+    end
+  end
+
   describe 'Requesting an original (non-resized) image' do
     context 'when the file exists' do
       it 'returns a 200 response' do
