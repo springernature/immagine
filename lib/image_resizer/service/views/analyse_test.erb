@@ -1,28 +1,88 @@
-<table border="1" cellpadding="5">
-  <thead>
-    <tr>
-      <th>Image</th>
-      <th colspan="4">Average Colour</th>
-    </tr>
-    <tr>
-      <th></th>
-      <th>Hex</th>
-      <th>RGB</th>
-      <th>Luma</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @images.each do |img| %>
-      <tr>
-        <td><img src="<%= img[:file] %>" width="400" /></td>
-        <td><%= img[:average_colour][:hex] %></td>
-        <td><%= img[:average_colour][:rgb] %></td>
-        <td><%= img[:average_colour][:luma] %></td>
-        <td>
-          <div style="border: 1px solid #999; background-color: <%= img[:average_colour][:hex] %>; width: 75px; height: 75px;"></div>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style media="all">
+      body { font-family: "Verdana"; font-size: 12px; }
+      table { border-collapse: collapse; }
+      table, th, td { border: 1px solid #999; }
+      th, td { padding: 5px; text-align: left; }
+      .dominant_colour th, .dominant_colour td { text-align: center; }
+    </style>
+  </head>
+  <body>
+    <table>
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th colspan="2">Average Colour</th>
+          <th colspan="2">Dominant Colour</th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>Data</th>
+          <th>Swatch</th>
+          <th>Top-10 Colours</th>
+          <th>Chosen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @images.each do |img| %>
+          <tr>
+            <td><img src="<%= img[:file] %>" width="400" /></td>
+            <td>
+              <table class="average_colour">
+                <tr><th>Hex</th><td><%= img[:average_colour][:hex] %></td></tr>
+                <tr><th>Red</th><td><%= img[:average_colour][:red] %></td></tr>
+                <tr><th>Green</th><td><%= img[:average_colour][:green] %></td></tr>
+                <tr><th>Blue</th><td><%= img[:average_colour][:blue] %></td></tr>
+                <tr><th>Luma</th><td><%= img[:average_colour][:luma] %></td></tr>
+                <tr><th>Hue</th><td><%= sprintf('%.4f', img[:average_colour][:hue]) %></td></tr>
+                <tr><th>Saturation</th><td><%= sprintf('%.4f', img[:average_colour][:saturation]) %></td></tr>
+                <tr><th>Lightness</th><td><%= sprintf('%.4f', img[:average_colour][:lightness]) %></td></tr>
+              </table>
+            </td>
+            <td><div style="border: 1px solid #999; background-color: <%= img[:average_colour][:hex] %>; width: 50px; height: 50px;"></div></td>
+            <td>
+              <table class="dominant_colour">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Hex</th>
+                    <th>Red</th>
+                    <th>Green</th>
+                    <th>Blue</th>
+                    <th>Luma</th>
+                    <th>Hue</th>
+                    <th>Saturation</th>
+                    <th>Lightness</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% img[:dominant_colour][:top_10_colors].each_with_index do |pix, idx| %>
+                    <tr>
+                      <td><%= idx %></td>
+                      <td><div style="border: 1px solid #999; background-color: <%= pix[:hex] %>; width: 25px; height: 25px;"></div></td>
+                      <td><%= pix[:hex] %></td>
+                      <td><%= pix[:red] %></td>
+                      <td><%= pix[:green] %></td>
+                      <td><%= pix[:blue] %></td>
+                      <td><%= pix[:luma] %></td>
+                      <td><%= sprintf('%.4f', pix[:hue]) %></td>
+                      <td><%= sprintf('%.4f', pix[:saturation]) %></td>
+                      <td><%= sprintf('%.4f', pix[:lightness]) %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </td>
+            <td>
+              <div style="border: 1px solid #999; background-color: <%= img[:dominant_colour][:chosen][:hex] %>; width: 50px; height: 50px;"></div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </body>
+</html>

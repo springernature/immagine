@@ -20,15 +20,17 @@ module ImageResizer
 
     get '/analyse-test' do
       image_dir = File.join(ImageResizer.settings.lookup('source_folder'), '..', 'analyse-test')
-      @images   = Dir.glob("#{image_dir}/*").map do |source|
-        image = Magick::Image.read(source).first.extend(RMagickImageAnalysis)
-        color_analysis = image.color_analysis
-        image.destroy!
+      Dir.chdir(image_dir) do
+        @images = Dir.glob('*').map do |source|
+          image = Magick::Image.read(source).first.extend(RMagickImageAnalysis)
+          color_analysis = image.color_analysis
+          image.destroy!
 
-        {
-          file: source.sub(image_dir, '/analyse-test')
-        }.merge(color_analysis)
-      end.compact
+          {
+            file: File.join('/analyse-test', source)
+          }.merge(color_analysis)
+        end.compact
+      end
 
       erb :analyse_test
     end
