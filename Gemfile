@@ -7,6 +7,7 @@ gem 'statsd-ruby'
 gem 'unicorn'
 gem 'puma'
 gem 'macmillan-utils'
+gem 'newrelic_rpm'
 
 group :development do
   gem 'shotgun'
