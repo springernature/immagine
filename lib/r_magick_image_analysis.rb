@@ -20,6 +20,8 @@ module RMagickImageAnalysis
     data = target.pixel_color_at(0, 0)
 
     data.merge(luma: calculate_luma(*data[:rgb]))
+  ensure
+    target && target.destroy!
   end
 
   def calculate_luma(r, g, b)

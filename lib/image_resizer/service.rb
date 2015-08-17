@@ -22,10 +22,12 @@ module ImageResizer
       image_dir = File.join(ImageResizer.settings.lookup('source_folder'), '..', 'analyse-test')
       @images   = Dir.glob("#{image_dir}/*").map do |source|
         image = Magick::Image.read(source).first.extend(RMagickImageAnalysis)
+        color_analysis = image.color_analysis
+        image.destroy!
 
         {
           file: source.sub(image_dir, '/analyse-test')
-        }.merge(image.color_analysis)
+        }.merge(color_analysis)
       end.compact
 
       erb :analyse_test
@@ -37,13 +39,15 @@ module ImageResizer
 
       etag calculate_etags('wibble', 'wobble', source, source)
 
-      image = Magick::Image.read(source).first.extend(RMagickImageAnalysis)
+      image          = Magick::Image.read(source).first.extend(RMagickImageAnalysis)
+      color_analysis = image.color_analysis
+      image.destroy!
 
       content_type :json
 
       {
         file: path
-      }.merge(image.color_analysis).to_json
+      }.merge(color_analysis).to_json
     end
 
     get %r{\A(.+)?/([^/]+)/([^/]+)\z} do |dir, format_code, basename|
@@ -97,7 +101,11 @@ module ImageResizer
       # image quality
       image_quality = Integer(request.env['HTTP_X_IMAGE_QUALITY'] || DEFAULT_IMAGE_QUALITY)
 
-      image.to_blob { self.quality = image_quality }
+      return_obj = image.to_blob { self.quality = image_quality }
+
+      image.destroy!
+
+      return_obj
     end
 
     private
