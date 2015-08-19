@@ -7,7 +7,7 @@
       table { border-collapse: collapse; }
       table, th, td { border: 1px solid #999; }
       th, td { padding: 5px; text-align: left; }
-      .dominant_colour th, .dominant_colour td { text-align: center; }
+      .dominant_color th, .dominant_color td { text-align: center; }
     </style>
   </head>
   <body>
@@ -31,20 +31,20 @@
           <tr>
             <td><img src="<%= img[:file] %>" width="400" /></td>
             <td>
-              <table class="average_colour">
-                <tr><th>Hex</th><td><%= img[:average_colour][:hex] %></td></tr>
-                <tr><th>Red</th><td><%= img[:average_colour][:red] %></td></tr>
-                <tr><th>Green</th><td><%= img[:average_colour][:green] %></td></tr>
-                <tr><th>Blue</th><td><%= img[:average_colour][:blue] %></td></tr>
-                <tr><th>Luma</th><td><%= img[:average_colour][:luma] %></td></tr>
-                <tr><th>Hue</th><td><%= sprintf('%.4f', img[:average_colour][:hue]) %></td></tr>
-                <tr><th>Saturation</th><td><%= sprintf('%.4f', img[:average_colour][:saturation]) %></td></tr>
-                <tr><th>Lightness</th><td><%= sprintf('%.4f', img[:average_colour][:lightness]) %></td></tr>
+              <table class="average_color">
+                <tr><th>Hex</th><td><%= img[:average_color][:hex] %></td></tr>
+                <tr><th>Red</th><td><%= img[:average_color][:red] %></td></tr>
+                <tr><th>Green</th><td><%= img[:average_color][:green] %></td></tr>
+                <tr><th>Blue</th><td><%= img[:average_color][:blue] %></td></tr>
+                <tr><th>Luma</th><td><%= img[:average_color][:luma] %></td></tr>
+                <tr><th>Hue</th><td><%= sprintf('%.4f', img[:average_color][:hue]) %></td></tr>
+                <tr><th>Saturation</th><td><%= sprintf('%.4f', img[:average_color][:saturation]) %></td></tr>
+                <tr><th>Lightness</th><td><%= sprintf('%.4f', img[:average_color][:lightness]) %></td></tr>
               </table>
             </td>
-            <td><div style="border: 1px solid #999; background-color: <%= img[:average_colour][:hex] %>; width: 50px; height: 50px;"></div></td>
+            <td><div style="border: 1px solid #999; background-color: <%= img[:average_color][:hex] %>; width: 50px; height: 50px;"></div></td>
             <td>
-              <table class="dominant_colour">
+              <table class="dominant_color">
                 <thead>
                   <tr>
                     <th></th>
@@ -60,7 +60,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <% img[:dominant_colour][:top_10_colors].each_with_index do |pix, idx| %>
+                  <% img[:dominant_color][:top_10_colors].each_with_index do |pix, idx| %>
                     <tr>
                       <td><%= idx %></td>
                       <td><div style="border: 1px solid #999; background-color: <%= pix[:hex] %>; width: 25px; height: 25px;"></div></td>
@@ -78,7 +78,7 @@
               </table>
             </td>
             <td>
-              <div style="border: 1px solid #999; background-color: <%= img[:dominant_colour][:chosen][:hex] %>; width: 50px; height: 50px;"></div>
+              <div style="border: 1px solid #999; background-color: <%= img[:dominant_color][:chosen][:hex] %>; width: 50px; height: 50px;"></div>
             </td>
           </tr>
         <% end %>

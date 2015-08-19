@@ -43,16 +43,16 @@ describe ImageResizer::Service do
         it 'returns a JSON object' do
           get '/analyse/live/images/kitten.jpg'
 
-          json = JSON.parse(last_response.body, symbolize_names: true)
+          expected_pixel_keys = %i(red green blue hex luma hue saturation lightness)
+          json                = JSON.parse(last_response.body, symbolize_names: true)
+          average_colour      = json.fetch(:average_color)
+          dominant_color      = json.fetch(:dominant_color)
 
-          expect(json).to have_key(:file)
-          expect(json).to have_key(:average_colour)
-
-          average_colour = json.fetch(:average_colour)
-
-          expect(average_colour).to have_key(:rgb)
-          expect(average_colour).to have_key(:hex)
-          expect(average_colour).to have_key(:luma)
+          expect(json.keys).to match_array(%i(file average_color dominant_color))
+          expect(average_colour.keys).to match_array(expected_pixel_keys)
+          expect(dominant_color.keys).to match_array(%i(top_10_colors chosen))
+          expect(dominant_color.fetch(:top_10_colors).size).to eq(10)
+          expect(dominant_color.fetch(:chosen).keys).to match_array(expected_pixel_keys)
         end
 
         context 'ETAGS' do
@@ -73,7 +73,7 @@ describe ImageResizer::Service do
             it 'responds with different Etags' do
               expect(File)
                 .to receive(:mtime)
-                .and_return(Time.utc(2014, 1, 1), Time.utc(2014, 1, 2))
+                .and_return(Time.utc(2014, 1, 1), Time.utc(2014, 1, 1), Time.utc(2014, 1, 2), Time.utc(2014, 1, 2))
 
               get '/analyse/live/images/kitten.jpg'
               expect(last_response).to be_ok
