@@ -1,4 +1,5 @@
 require 'sinatra/base'
+require 'tilt/erb'
 require 'json'
 
 module ImageResizer
@@ -20,15 +21,12 @@ module ImageResizer
 
     get '/analyse-test' do
       image_dir = File.join(ImageResizer.settings.lookup('source_folder'), '..', 'analyse-test')
-      @images   = Dir.glob("#{image_dir}/*").map do |source|
-        image = Magick::Image.read(source).first.extend(RMagickImageAnalysis)
-        color_analysis = image.color_analysis
-        image.destroy!
 
-        {
-          file: source.sub(image_dir, '/analyse-test')
-        }.merge(color_analysis)
-      end.compact
+      Dir.chdir(image_dir) do
+        @images = Dir.glob('*').map do |source|
+          analyse_color(source).merge(file: File.join('/analyse-test', source))
+        end.compact
+      end
 
       erb :analyse_test
     end
@@ -37,17 +35,11 @@ module ImageResizer
       source = File.join(ImageResizer.settings.lookup('source_folder'), path)
       not_found unless File.exist?(source)
 
-      etag calculate_etags('wibble', 'wobble', source, source)
-
-      image          = Magick::Image.read(source).first.extend(RMagickImageAnalysis)
-      color_analysis = image.color_analysis
-      image.destroy!
+      etag(calculate_etags('wibble', 'wobble', source, source))
+      last_modified(File.mtime(source))
 
       content_type :json
-
-      {
-        file: path
-      }.merge(color_analysis).to_json
+      analyse_color(source).merge(file: path).to_json
     end
 
     get %r{\A(.+)?/([^/]+)/([^/]+)\z} do |dir, format_code, basename|
@@ -62,11 +54,11 @@ module ImageResizer
       static_file = File.join(ImageResizer.settings.lookup('source_folder'), dir, format_code, basename)
 
       if File.exist?(static_file)
-        etag calculate_etags(dir, format_code, basename, static_file)
+        etag(calculate_etags(dir, format_code, basename, static_file))
         set_cache_control_headers(request, dir)
 
         statsd.increment('serve_original_image')
-        send_file static_file
+        send_file(static_file)
       end
 
       # check the format_code is on the whitelist
@@ -86,8 +78,8 @@ module ImageResizer
       end
 
       # etags & cache headers
-      etag calculate_etags(dir, format_code, basename, source_file)
-      last_modified File.mtime(source_file)
+      etag(calculate_etags(dir, format_code, basename, source_file))
+      last_modified(File.mtime(source_file))
       set_cache_control_headers(request, dir)
 
       # generate image
@@ -151,7 +143,7 @@ module ImageResizer
     end
 
     def process_image(path, format)
-      processor = ImageProcessor.new(path)
+      processor = image_processor(path)
 
       image = case format
               when /\Aw(\d+)\z/
@@ -170,6 +162,21 @@ module ImageResizer
 
       image.strip!
       image
+    end
+
+    def image_processor(path)
+      ImageProcessor.new(path)
+    end
+
+    def analyse_color(path)
+      image = image_processor(path)
+
+      {
+        average_color:  image.average_color,
+        dominant_color: image.dominant_color
+      }
+    ensure
+      image && image.destroy!
     end
 
     def calculate_etags(dir, format_code, basename, source_file)
