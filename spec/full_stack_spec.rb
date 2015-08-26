@@ -31,14 +31,14 @@ describe 'Requesting a resized image' do
 
   describe 'When the source image does not exist' do
     it 'returns a 404' do
-      get "/live/foo/#{ImageResizer.settings.lookup('size_whitelist').sample}/bar.jpg"
+      get "/live/foo/#{Immagine.settings.lookup('size_whitelist').sample}/bar.jpg"
       expect(last_response.status).to eq(404)
     end
   end
 
   describe 'When the format code is valid' do
     it 'returns a 200' do
-      ImageResizer.settings.lookup('size_whitelist').each do |f|
+      Immagine.settings.lookup('size_whitelist').each do |f|
         get "/live/images/#{f}/matz.jpg"
         expect(last_response.status).to eq(200)
       end

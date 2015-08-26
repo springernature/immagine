@@ -1,17 +1,19 @@
 require 'fileutils'
 
-module ImageResizer
+module Immagine
   class ImageProcessor
+    attr_reader :img
+
     def initialize(source)
       @img = Magick::Image.read(source).first
     end
 
     def destroy!
-      @img.destroy!
+      img.destroy!
     end
 
     def average_color
-      target = @img.dup
+      target = img.dup
       target.scale!(1,1)
       pixel_color_at(0, 0, target)
     ensure
@@ -19,7 +21,7 @@ module ImageResizer
     end
 
     def dominant_color
-      target = @img.dup
+      target = img.dup
 
       # scale to 100 x 100
       target.scale!(100, 100)
@@ -53,11 +55,11 @@ module ImageResizer
     end
 
     def constrain_width(width)
-      if @img.columns == 0
+      if img.columns == 0
         fail ProcessingError.new("The width of the image #{source} is 0")
       end
 
-      if @img.columns <= width
+      if img.columns <= width
         serve_image
       else
         resize_image_by_width(width)
@@ -65,11 +67,11 @@ module ImageResizer
     end
 
     def constrain_height(height)
-      if @img.rows == 0
+      if img.rows == 0
         fail ProcessingError.new("The height of the image #{source} is 0")
       end
 
-      if @img.rows <= height
+      if img.rows <= height
         serve_image
       else
         resize_image_by_height(height)
@@ -77,7 +79,7 @@ module ImageResizer
     end
 
     def resize_by_max(size)
-      if @img.rows > @img.columns # portrait
+      if img.rows > img.columns # portrait
         constrain_height(size)
       else # landscape
         constrain_width(size)
@@ -85,24 +87,25 @@ module ImageResizer
     end
 
     def resize_and_crop(width, height)
-      if @img.rows == 0
+      if img.rows == 0
         fail ProcessingError.new("The height of the image #{source} is 0")
       end
 
-      original_ratio = @img.columns.to_f / @img.rows.to_f
-      target_ratio = width.to_f / height.to_f
+      original_ratio = img.columns.to_f / img.rows.to_f
+      target_ratio   = width.to_f / height.to_f
 
       resized = if target_ratio > original_ratio
                   resize_image_by_width(width)
                 else
                   resize_image_by_height(height)
                 end
+
       resized.crop(Magick::CenterGravity, width, height)
     end
 
     def resize_relative_to_original
-      original_width  = @img.columns
-      original_height = @img.rows
+      original_width  = img.columns
+      original_height = img.rows
 
       if original_width == 0
         fail ProcessingError.new("The width of the image #{source} is 0")
@@ -121,12 +124,12 @@ module ImageResizer
 
     private
 
-    def pixel_color_at(x, y, image = @img)
+    def pixel_color_at(x, y, image = img)
       pix      = image.pixel_color(x, y)
       rgb      = { red: pix.red, green: pix.green, blue: pix.blue }
       h, s, l  = pix.to_HSL
 
-      rgb.merge(hex: @img.to_color(pix), luma: calculate_luma(rgb), hue: h, saturation: s, lightness: l)
+      rgb.merge(hex: img.to_color(pix), luma: calculate_luma(rgb), hue: h, saturation: s, lightness: l)
     end
 
     def calculate_luma(rgb)
@@ -140,24 +143,24 @@ module ImageResizer
     end
 
     def resize_image_by_width(width)
-      scale_factor = width.to_f / @img.columns.to_f
+      scale_factor = width.to_f / img.columns.to_f
       resize(scale_factor)
     end
 
     def resize_image_by_height(height)
-      scale_factor = height.to_f / @img.rows.to_f
+      scale_factor = height.to_f / img.rows.to_f
       resize(scale_factor)
     end
 
     def resize(scale_factor)
-      @img.resize!(scale_factor)
+      img.resize!(scale_factor)
       serve_image
     end
 
     def serve_image
-      @img.compression = Magick::JPEGCompression if @img.format == 'JPEG'
-      @img.interlace = (@img.columns * @img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
-      @img
+      img.compression = Magick::JPEGCompression if img.format == 'JPEG'
+      img.interlace = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
+      img
     end
 
     class ProcessingError < StandardError; end

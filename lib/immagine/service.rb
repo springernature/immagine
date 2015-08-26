@@ -2,7 +2,7 @@ require 'sinatra/base'
 require 'tilt/erb'
 require 'json'
 
-module ImageResizer
+module Immagine
   class Service < Sinatra::Base
     DEFAULT_IMAGE_QUALITY = 85
 
@@ -20,7 +20,7 @@ module ImageResizer
     end
 
     get '/analyse-test' do
-      image_dir = File.join(ImageResizer.settings.lookup('source_folder'), '..', 'analyse-test')
+      image_dir = File.join(Immagine.settings.lookup('source_folder'), '..', 'analyse-test')
 
       Dir.chdir(image_dir) do
         @images = Dir.glob('*').map do |source|
@@ -32,7 +32,7 @@ module ImageResizer
     end
 
     get %r{\A/analyse/(.+)\z} do |path|
-      source = File.join(ImageResizer.settings.lookup('source_folder'), path)
+      source = File.join(Immagine.settings.lookup('source_folder'), path)
       not_found unless File.exist?(source)
 
       etag(calculate_etags('wibble', 'wobble', source, source))
@@ -51,24 +51,23 @@ module ImageResizer
       end
 
       # check to see if this is an *actual* filepath
-      static_file = File.join(ImageResizer.settings.lookup('source_folder'), dir, format_code, basename)
+      static_file = File.join(Immagine.settings.lookup('source_folder'), dir, format_code, basename)
 
       if File.exist?(static_file)
         etag(calculate_etags(dir, format_code, basename, static_file))
         set_cache_control_headers(request, dir)
-
         statsd.increment('serve_original_image')
         send_file(static_file)
       end
 
       # check the format_code is on the whitelist
-      unless ImageResizer.settings.lookup('size_whitelist').include?(format_code)
+      unless Immagine.settings.lookup('size_whitelist').include?(format_code)
         log_error("404, format code not found (#{format_code}).")
         statsd.increment('asset_format_not_in_whitelist')
         not_found
       end
 
-      source_file = File.join(ImageResizer.settings.lookup('source_folder'), dir, basename)
+      source_file = File.join(Immagine.settings.lookup('source_folder'), dir, basename)
 
       # check the file exists
       unless File.exist?(source_file)
@@ -83,32 +82,26 @@ module ImageResizer
       set_cache_control_headers(request, dir)
 
       # generate image
-      image = statsd.time('asset_resize') do
-        process_image(source_file, format_code)
+      image_blob, mime = statsd.time('asset_resize') do
+        quality = Integer(request.env['HTTP_X_IMAGE_QUALITY'] || DEFAULT_IMAGE_QUALITY)
+        process_image(source_file, format_code, quality)
       end
 
       # content type
-      content_type image.mime_type
+      content_type(mime)
 
-      # image quality
-      image_quality = Integer(request.env['HTTP_X_IMAGE_QUALITY'] || DEFAULT_IMAGE_QUALITY)
-
-      return_obj = image.to_blob { self.quality = image_quality }
-
-      image.destroy!
-
-      return_obj
+      image_blob
     end
 
     private
 
     def set_cache_control_headers(request, dir)
       if custom_cache_control = request.env['HTTP_X_CACHE_CONTROL']
-        cache_control custom_cache_control
-      elsif dir =~ %r{\A/live}
-        cache_control :public, max_age: 86_400
+        cache_control(custom_cache_control)
+      elsif dir !~ %r{\A/staging}
+        cache_control(:public, max_age: 86_400)
       else
-        cache_control :private, :no_store, max_age: 0
+        cache_control(:private, :no_store, max_age: 0)
       end
 
       prevent_storage_on_akamai if response['Cache-Control'].include? 'private'
@@ -142,26 +135,27 @@ module ImageResizer
       response['Edge-Control'] = 'no-store, max-age=0'
     end
 
-    def process_image(path, format)
+    def process_image(path, format, quality)
       processor = image_processor(path)
 
-      image = case format
-              when /\Aw(\d+)\z/
-                processor.constrain_width(Regexp.last_match[1].to_i)
-              when /\Ah(\d+)\z/
-                processor.constrain_height(Regexp.last_match[1].to_i)
-              when /\Am(\d+)\z/
-                processor.resize_by_max(Regexp.last_match[1].to_i)
-              when /\Aw(\d+)h(\d+)\z/
-                processor.resize_and_crop(Regexp.last_match[1].to_i, Regexp.last_match[2].to_i)
-              when /\Arelative\z/
-                processor.resize_relative_to_original
-              else
-                fail "Unsupported format: #{format}. Please remove it from the whitelist."
-              end
+      img = case format
+            when /\Aw(\d+)\z/       then processor.constrain_width(Regexp.last_match[1].to_i)
+            when /\Ah(\d+)\z/       then processor.constrain_height(Regexp.last_match[1].to_i)
+            when /\Am(\d+)\z/       then processor.resize_by_max(Regexp.last_match[1].to_i)
+            when /\Aw(\d+)h(\d+)\z/ then processor.resize_and_crop(Regexp.last_match[1].to_i, Regexp.last_match[2].to_i)
+            when /\Arelative\z/     then processor.resize_relative_to_original
+            else
+              fail "Unsupported format: #{format}. Please add it to the whitelist if required."
+            end
 
-      image.strip!
-      image
+      img.strip!
+
+      blob = img.to_blob { self.quality = quality }
+      mime = img.mime_type
+
+      [blob, mime]
+    ensure
+      img && img.destroy!
     end
 
     def image_processor(path)
@@ -191,15 +185,15 @@ module ImageResizer
     end
 
     def log_error(msg)
-      logger.error("[ImageResizer::Service] (#{request.path}) - #{msg}")
+      logger.error("[Immagine::Service] (#{request.path}) - #{msg}")
     end
 
     def logger
-      ImageResizer.logger
+      Immagine.logger
     end
 
     def statsd
-      ImageResizer.statsd
+      Immagine.statsd
     end
   end
 end

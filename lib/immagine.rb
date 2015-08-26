@@ -5,7 +5,7 @@ require 'RMagick'
 require 'statsd-ruby'
 require 'macmillan/utils'
 
-module ImageResizer
+module Immagine
   class << self
     def init(environment)
       Bundler.require(:default, environment)
@@ -44,5 +44,5 @@ module ImageResizer
   end
 end
 
-require_relative 'image_resizer/image_processor'
-require_relative 'image_resizer/service'
+require_relative 'immagine/image_processor'
+require_relative 'immagine/service'
