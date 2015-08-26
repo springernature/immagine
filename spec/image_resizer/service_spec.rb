@@ -164,7 +164,7 @@ describe ImageResizer::Service do
         end
 
         context 'when a X-Cache-Control HTTP header HAS NOT been passed' do
-          context 'when the image requested is a LIVE asset' do
+          context 'when the image requested is NOT a STAGING asset' do
             it 'sets the Cache-Control as PUBLIC' do
               get '/live/images/kitten.jpg'
 
@@ -173,7 +173,7 @@ describe ImageResizer::Service do
             end
 
             it 'sets the Max-Age as 1 day' do
-              get '/live/images/kitten.jpg'
+              get '/uploads/images/kitten.jpg'
 
               expect(last_response).to be_ok
               expect(last_response.header['Cache-Control']).to include('max-age=86400')
@@ -381,7 +381,7 @@ describe ImageResizer::Service do
       end
 
       context 'when a X-Cache-Control HTTP header HAS NOT been passed' do
-        context 'when the image requested is a LIVE asset' do
+        context 'when the image requested is NOT a STAGING asset' do
           it 'sets the Cache-Control as PUBLIC' do
             get "/live/images/#{format_code}/kitten.jpg"
 
@@ -390,7 +390,7 @@ describe ImageResizer::Service do
           end
 
           it 'sets the Max-Age as 1 day' do
-            get "/live/images/#{format_code}/kitten.jpg"
+            get "/uploads/images/#{format_code}/kitten.jpg"
 
             expect(last_response).to be_ok
             expect(last_response.header['Cache-Control']).to include('max-age=86400')
@@ -416,12 +416,37 @@ describe ImageResizer::Service do
     end
 
     context 'Image Quality' do
+      let(:format_code) { ImageResizer.settings.lookup('size_whitelist').sample }
+      let(:img_source)  { '/live/images/kitten.jpg' }
+      let(:file_path)   { File.join(ImageResizer.settings.lookup('source_folder'), img_source) }
+
       context 'no custom headers' do
-        it 'uses the default image quality setting'
+        it 'uses the default image quality setting' do
+          expect_any_instance_of(ImageResizer::Service)
+            .to receive(:process_image)
+            .with(file_path, format_code, ImageResizer::Service::DEFAULT_IMAGE_QUALITY)
+            .and_call_original
+
+          get "/live/images/#{format_code}/kitten.jpg"
+
+          expect(last_response).to be_ok
+        end
       end
 
       context 'with a X-Image-Quality HTTP header' do
-        it 'uses the passed quality setting'
+        let(:quality) { ImageResizer::Service::DEFAULT_IMAGE_QUALITY - 20 }
+
+        it 'uses the passed quality setting' do
+          expect_any_instance_of(ImageResizer::Service)
+            .to receive(:process_image)
+            .with(file_path, format_code, quality)
+            .and_call_original
+
+          header 'X_IMAGE_QUALITY', quality
+          get "/live/images/#{format_code}/kitten.jpg"
+
+          expect(last_response).to be_ok
+        end
       end
     end
   end
