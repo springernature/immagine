@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module ImageResizer
+module Immagine
   describe ImageProcessor do
     let(:test_folder) { File.join(__dir__, '..', '..', 'test-data') }
     # the original image is 220x328

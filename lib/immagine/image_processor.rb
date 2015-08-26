@@ -1,6 +1,6 @@
 require 'fileutils'
 
-module ImageResizer
+module Immagine
   class ImageProcessor
     attr_reader :img
 

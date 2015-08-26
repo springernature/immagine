@@ -2,7 +2,7 @@ require 'sinatra/base'
 require 'tilt/erb'
 require 'json'
 
-module ImageResizer
+module Immagine
   class Service < Sinatra::Base
     DEFAULT_IMAGE_QUALITY = 85
 
@@ -20,7 +20,7 @@ module ImageResizer
     end
 
     get '/analyse-test' do
-      image_dir = File.join(ImageResizer.settings.lookup('source_folder'), '..', 'analyse-test')
+      image_dir = File.join(Immagine.settings.lookup('source_folder'), '..', 'analyse-test')
 
       Dir.chdir(image_dir) do
         @images = Dir.glob('*').map do |source|
@@ -32,7 +32,7 @@ module ImageResizer
     end
 
     get %r{\A/analyse/(.+)\z} do |path|
-      source = File.join(ImageResizer.settings.lookup('source_folder'), path)
+      source = File.join(Immagine.settings.lookup('source_folder'), path)
       not_found unless File.exist?(source)
 
       etag(calculate_etags('wibble', 'wobble', source, source))
@@ -51,7 +51,7 @@ module ImageResizer
       end
 
       # check to see if this is an *actual* filepath
-      static_file = File.join(ImageResizer.settings.lookup('source_folder'), dir, format_code, basename)
+      static_file = File.join(Immagine.settings.lookup('source_folder'), dir, format_code, basename)
 
       if File.exist?(static_file)
         etag(calculate_etags(dir, format_code, basename, static_file))
@@ -61,13 +61,13 @@ module ImageResizer
       end
 
       # check the format_code is on the whitelist
-      unless ImageResizer.settings.lookup('size_whitelist').include?(format_code)
+      unless Immagine.settings.lookup('size_whitelist').include?(format_code)
         log_error("404, format code not found (#{format_code}).")
         statsd.increment('asset_format_not_in_whitelist')
         not_found
       end
 
-      source_file = File.join(ImageResizer.settings.lookup('source_folder'), dir, basename)
+      source_file = File.join(Immagine.settings.lookup('source_folder'), dir, basename)
 
       # check the file exists
       unless File.exist?(source_file)
@@ -185,15 +185,15 @@ module ImageResizer
     end
 
     def log_error(msg)
-      logger.error("[ImageResizer::Service] (#{request.path}) - #{msg}")
+      logger.error("[Immagine::Service] (#{request.path}) - #{msg}")
     end
 
     def logger
-      ImageResizer.logger
+      Immagine.logger
     end
 
     def statsd
-      ImageResizer.statsd
+      Immagine.statsd
     end
   end
 end

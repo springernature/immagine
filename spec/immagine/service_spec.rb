@@ -1,11 +1,11 @@
 require 'spec_helper'
 require 'rack/test'
 
-describe ImageResizer::Service do
+describe Immagine::Service do
   include Rack::Test::Methods
 
   def app
-    ImageResizer::Service
+    Immagine::Service
   end
 
   describe 'GET /heartbeat' do
@@ -312,14 +312,14 @@ describe ImageResizer::Service do
 
     context 'when the source image does not exist' do
       it 'returns a 404' do
-        get "/live/images/#{ImageResizer.settings.lookup('size_whitelist').sample}/bar.jpg"
+        get "/live/images/#{Immagine.settings.lookup('size_whitelist').sample}/bar.jpg"
         expect(last_response.status).to eq(404)
       end
     end
 
     context 'when everything is correct' do
       it 'returns a 200' do
-        ImageResizer.settings.lookup('size_whitelist').each do |f|
+        Immagine.settings.lookup('size_whitelist').each do |f|
           get "/live/images/#{f}/matz.jpg"
           expect(last_response.status).to eq(200)
         end
@@ -328,13 +328,13 @@ describe ImageResizer::Service do
 
     context 'Last-Modified HTTP headers' do
       it 'sets them' do
-        get "/live/images/#{ImageResizer.settings.lookup('size_whitelist').sample}/kitten.jpg"
+        get "/live/images/#{Immagine.settings.lookup('size_whitelist').sample}/kitten.jpg"
         expect(last_response.header['Last-Modified']).to_not be_nil
       end
     end
 
     context 'ETAGS' do
-      let(:format_code) { ImageResizer.settings.lookup('size_whitelist').sample }
+      let(:format_code) { Immagine.settings.lookup('size_whitelist').sample }
 
       context 'when the file HAS NOT been modified between requests' do
         it 'should return THE SAME ETAGs' do
@@ -369,7 +369,7 @@ describe ImageResizer::Service do
     end
 
     context 'Cache-Control' do
-      let(:format_code) { ImageResizer.settings.lookup('size_whitelist').sample }
+      let(:format_code) { Immagine.settings.lookup('size_whitelist').sample }
 
       context 'when a X-Cache-Control HTTP header HAS been passed' do
         it 'sets the cache control headers accordingly' do
@@ -416,15 +416,15 @@ describe ImageResizer::Service do
     end
 
     context 'Image Quality' do
-      let(:format_code) { ImageResizer.settings.lookup('size_whitelist').sample }
+      let(:format_code) { Immagine.settings.lookup('size_whitelist').sample }
       let(:img_source)  { '/live/images/kitten.jpg' }
-      let(:file_path)   { File.join(ImageResizer.settings.lookup('source_folder'), img_source) }
+      let(:file_path)   { File.join(Immagine.settings.lookup('source_folder'), img_source) }
 
       context 'no custom headers' do
         it 'uses the default image quality setting' do
-          expect_any_instance_of(ImageResizer::Service)
+          expect_any_instance_of(Immagine::Service)
             .to receive(:process_image)
-            .with(file_path, format_code, ImageResizer::Service::DEFAULT_IMAGE_QUALITY)
+            .with(file_path, format_code, Immagine::Service::DEFAULT_IMAGE_QUALITY)
             .and_call_original
 
           get "/live/images/#{format_code}/kitten.jpg"
@@ -434,10 +434,10 @@ describe ImageResizer::Service do
       end
 
       context 'with a X-Image-Quality HTTP header' do
-        let(:quality) { ImageResizer::Service::DEFAULT_IMAGE_QUALITY - 20 }
+        let(:quality) { Immagine::Service::DEFAULT_IMAGE_QUALITY - 20 }
 
         it 'uses the passed quality setting' do
-          expect_any_instance_of(ImageResizer::Service)
+          expect_any_instance_of(Immagine::Service)
             .to receive(:process_image)
             .with(file_path, format_code, quality)
             .and_call_original

@@ -2,7 +2,7 @@ APP_ROOT = File.expand_path(File.dirname(File.dirname(__FILE__)))
 
 $LOAD_PATH.unshift File.join(APP_ROOT, 'lib')
 
-require 'image_resizer'
+require 'immagine'
 
 port   = Integer(ENV['PORT'] || 5000)
 socket = ENV['SOCKET'] || '/tmp/image-server.sock'
@@ -23,4 +23,4 @@ workers           Integer(ENV['PROCESSES'] || 2)
 bind              "tcp://0.0.0.0:#{port}"
 bind              "unix://#{socket}"
 
-tag               'image_resizer'
+tag               'immagine'
