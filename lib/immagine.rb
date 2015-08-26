@@ -13,10 +13,7 @@ module Immagine
     end
 
     def settings
-      @settings ||= begin
-        Macmillan::Utils::Settings.backends = [Macmillan::Utils::Settings::AppYamlBackend]
-        Macmillan::Utils::Settings.instance
-      end
+      @settings ||= Macmillan::Utils::Settings.instance
     end
     attr_writer :settings
 
