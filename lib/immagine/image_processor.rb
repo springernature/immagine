@@ -6,6 +6,9 @@ module Immagine
 
     def initialize(source)
       @img = Magick::Image.read(source).first
+
+      fail ProcessingError, "The width of the image #{source} is 0" if img.columns == 0
+      fail ProcessingError, "The height of the image #{source} is 0" if img.rows == 0
     end
 
     def destroy!
@@ -54,71 +57,80 @@ module Immagine
       new_img && new_img.destroy!
     end
 
-    def constrain_width(width)
-      if img.columns == 0
-        fail ProcessingError.new("The width of the image #{source} is 0")
-      end
+    def overlay_color!(color = nil, percent = 80)
+      color   = dominant_color[:chosen][:hex] unless color
+      overlay = Magick::Image.new(img.columns, img.rows, Magick::SolidFill.new(color))
+      @img    = img.blend(overlay, "#{percent}%")
+    ensure
+      overlay && overlay.destroy!
+    end
 
+    def crop!(gravity, width, height)
+      grav = case gravity
+             when 'NW' then Magick::NorthWestGravity
+             when 'N'  then Magick::NorthGravity
+             when 'NE' then Magick::NorthEastGravity
+             when 'W'  then Magick::WestGravity
+             when 'C'  then Magick::CenterGravity
+             when 'E'  then Magick::EastGravity
+             when 'SW' then Magick::SouthWestGravity
+             when 'S'  then Magick::SouthGravity
+             when 'SE' then Magick::SouthEastGravity
+             else
+               fail ProcessingError, "Unsupported gravity argument '#{gravity}'"
+             end
+
+      img.crop!(grav, width, height)
+    end
+
+    def blur!(radius, sigma = 1.0)
+      @img = img.blur_image(radius, sigma)
+    end
+
+    def constrain_width!(width)
       if img.columns <= width
         serve_image
       else
-        resize_image_by_width(width)
+        resize_image_by_width!(width)
       end
     end
 
-    def constrain_height(height)
-      if img.rows == 0
-        fail ProcessingError.new("The height of the image #{source} is 0")
-      end
-
+    def constrain_height!(height)
       if img.rows <= height
         serve_image
       else
-        resize_image_by_height(height)
+        resize_image_by_height!(height)
       end
     end
 
-    def resize_by_max(size)
+    def resize_by_max!(size)
       if img.rows > img.columns # portrait
-        constrain_height(size)
+        constrain_height!(size)
       else # landscape
-        constrain_width(size)
+        constrain_width!(size)
       end
     end
 
-    def resize_and_crop(width, height)
-      if img.rows == 0
-        fail ProcessingError.new("The height of the image #{source} is 0")
-      end
-
+    def resize_and_crop!(width, height)
       original_ratio = img.columns.to_f / img.rows.to_f
       target_ratio   = width.to_f / height.to_f
 
       resized = if target_ratio > original_ratio
-                  resize_image_by_width(width)
+                  resize_image_by_width!(width)
                 else
-                  resize_image_by_height(height)
+                  resize_image_by_height!(height)
                 end
 
       resized.crop(Magick::CenterGravity, width, height)
     end
 
-    def resize_relative_to_original
-      original_width  = img.columns
-      original_height = img.rows
-
-      if original_width == 0
-        fail ProcessingError.new("The width of the image #{source} is 0")
-      elsif original_height == 0
-        fail ProcessingError.new("The height of the image #{source} is 0")
-      end
-
-      if original_width <= 300
+    def resize_relative_to_original!
+      if img.columns <= 300
         serve_image
-      elsif original_width <= 1050
-        resize_image_by_width(300)
+      elsif img.rows <= 1050
+        resize_image_by_width!(300)
       else
-        resize_by_max(703)
+        resize_by_max!(703)
       end
     end
 
@@ -134,7 +146,7 @@ module Immagine
 
     def calculate_luma(rgb)
       # corr_fac is used to correct 16,32,64-bit RGB values to 8-bit precison
-      corr_fac =  2 ** (Magick::MAGICKCORE_QUANTUM_DEPTH - 8)
+      corr_fac = 2**(Magick::MAGICKCORE_QUANTUM_DEPTH - 8)
       red      = rgb[:red] / corr_fac
       green    = rgb[:green] / corr_fac
       blue     = rgb[:blue] / corr_fac
@@ -142,24 +154,24 @@ module Immagine
       ((0.2126 * red) + (0.7152 * green) + (0.0722 * blue)).round
     end
 
-    def resize_image_by_width(width)
+    def resize_image_by_width!(width)
       scale_factor = width.to_f / img.columns.to_f
-      resize(scale_factor)
+      resize!(scale_factor)
     end
 
-    def resize_image_by_height(height)
+    def resize_image_by_height!(height)
       scale_factor = height.to_f / img.rows.to_f
-      resize(scale_factor)
+      resize!(scale_factor)
     end
 
-    def resize(scale_factor)
+    def resize!(scale_factor)
       img.resize!(scale_factor)
       serve_image
     end
 
     def serve_image
       img.compression = Magick::JPEGCompression if img.format == 'JPEG'
-      img.interlace = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
+      img.interlace   = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
       img
     end
 

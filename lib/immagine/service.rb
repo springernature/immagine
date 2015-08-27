@@ -138,16 +138,19 @@ module Immagine
     def process_image(path, format, quality)
       processor = image_processor(path)
 
-      img = case format
-            when /\Aw(\d+)\z/       then processor.constrain_width(Regexp.last_match[1].to_i)
-            when /\Ah(\d+)\z/       then processor.constrain_height(Regexp.last_match[1].to_i)
-            when /\Am(\d+)\z/       then processor.resize_by_max(Regexp.last_match[1].to_i)
-            when /\Aw(\d+)h(\d+)\z/ then processor.resize_and_crop(Regexp.last_match[1].to_i, Regexp.last_match[2].to_i)
-            when /\Arelative\z/     then processor.resize_relative_to_original
-            else
-              fail "Unsupported format: #{format}. Please add it to the whitelist if required."
-            end
+      # processor.overlay_color!
 
+      case format
+      when /\Aw(\d+)\z/       then processor.constrain_width!(Regexp.last_match[1].to_i)
+      when /\Ah(\d+)\z/       then processor.constrain_height!(Regexp.last_match[1].to_i)
+      when /\Am(\d+)\z/       then processor.resize_by_max!(Regexp.last_match[1].to_i)
+      when /\Aw(\d+)h(\d+)\z/ then processor.resize_and_crop!(Regexp.last_match[1].to_i, Regexp.last_match[2].to_i)
+      when /\Arelative\z/     then processor.resize_relative_to_original!
+      else
+        fail "Unsupported format: #{format}. Please add it to the whitelist if required."
+      end
+
+      img = processor.img
       img.strip!
 
       blob = img.to_blob { self.quality = quality }
