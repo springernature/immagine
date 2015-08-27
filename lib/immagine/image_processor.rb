@@ -83,8 +83,8 @@ module Immagine
       img.crop!(grav, width, height)
     end
 
-    def blur!(radius, sigma = 1.0)
-      @img = img.blur_image(radius, sigma)
+    def blur!(radius, sigma = nil)
+      @img  = img.blur_image(radius, sigma || 1.0)
     end
 
     def constrain_width!(width)

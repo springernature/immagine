@@ -8,6 +8,7 @@ gem 'unicorn'
 gem 'puma'
 gem 'macmillan-utils'
 gem 'newrelic_rpm'
+gem 'memoizable'
 
 group :development do
   gem 'shotgun'
