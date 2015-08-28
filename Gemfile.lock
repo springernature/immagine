@@ -34,6 +34,8 @@ GEM
       simplecov-rcov
       syslog-logger
       webmock
+    memoizable (0.4.2)
+      thread_safe (~> 0.3, >= 0.3.1)
     method_source (0.8.2)
     multi_test (0.1.2)
     multipart-post (2.0.0)
@@ -93,6 +95,7 @@ GEM
     slop (3.6.0)
     statsd-ruby (1.2.1)
     syslog-logger (1.6.8)
+    thread_safe (0.3.5)
     tilt (2.0.1)
     unicorn (4.9.0)
       kgio (~> 2.6)
@@ -107,6 +110,7 @@ PLATFORMS
 
 DEPENDENCIES
   macmillan-utils
+  memoizable
   newrelic_rpm
   pry
   puma

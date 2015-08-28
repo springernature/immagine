@@ -4,6 +4,7 @@ require 'logger'
 require 'RMagick'
 require 'statsd-ruby'
 require 'macmillan/utils'
+require 'memoizable'
 
 module Immagine
   class << self
@@ -42,4 +43,6 @@ module Immagine
 end
 
 require_relative 'immagine/image_processor'
+require_relative 'immagine/format_processor'
+require_relative 'immagine/image_processor_driver'
 require_relative 'immagine/service'

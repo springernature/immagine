@@ -61,7 +61,7 @@ module Immagine
       end
 
       # check the format_code is on the whitelist
-      unless Immagine.settings.lookup('size_whitelist').include?(format_code)
+      unless Immagine.settings.lookup('size_whitelist').include?(format_code) && format_processor(format_code).valid?
         log_error("404, format code not found (#{format_code}).")
         statsd.increment('asset_format_not_in_whitelist')
         not_found
@@ -136,30 +136,20 @@ module Immagine
     end
 
     def process_image(path, format, quality)
-      processor = image_processor(path)
+      image_proc  = image_processor(path)
+      format_proc = format_processor(format)
 
-      img = case format
-            when /\Aw(\d+)\z/       then processor.constrain_width(Regexp.last_match[1].to_i)
-            when /\Ah(\d+)\z/       then processor.constrain_height(Regexp.last_match[1].to_i)
-            when /\Am(\d+)\z/       then processor.resize_by_max(Regexp.last_match[1].to_i)
-            when /\Aw(\d+)h(\d+)\z/ then processor.resize_and_crop(Regexp.last_match[1].to_i, Regexp.last_match[2].to_i)
-            when /\Arelative\z/     then processor.resize_relative_to_original
-            else
-              fail "Unsupported format: #{format}. Please add it to the whitelist if required."
-            end
+      fail "Unsupported format: '#{format}'" unless format_proc.valid?
 
-      img.strip!
-
-      blob = img.to_blob { self.quality = quality }
-      mime = img.mime_type
-
-      [blob, mime]
-    ensure
-      img && img.destroy!
+      ImageProcessorDriver.new(image_proc, format_proc, quality).process
     end
 
     def image_processor(path)
       ImageProcessor.new(path)
+    end
+
+    def format_processor(format)
+      FormatProcessor.new(format)
     end
 
     def analyse_color(path)
