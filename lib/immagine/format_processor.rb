@@ -8,9 +8,10 @@ module Immagine
       height:   /h(\d+)/,
       width:    /w(\d+)/,
       max:      /m(\d+)/,
-      crop:     /c([A-Z]{,2})/,
+      relative: /rel/,
+      crop:     /c([A-Z]{1,2})/,
       blur:     /b([\d\.]+)-?([\d\.]+)?/,
-      relative: /rel/
+      overlay:  /ov#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|dominant)?-?(\d{1,2})?/
     }
 
     def initialize(format_string)
@@ -67,6 +68,21 @@ module Immagine
       match.to_f if match
     end
 
+    memoize def overlay?
+      !!format_string.match(REGEX[:overlay])
+    end
+
+    memoize def overlay_color
+      match = extract_first_match(:overlay)
+      return nil unless match
+      match == 'dominant' ? nil : "##{match}"
+    end
+
+    memoize def overlay_opacity
+      match = extract_second_match(:overlay)
+      match.to_i if match
+    end
+
     private
 
     def valid_for_crop?
@@ -88,7 +104,7 @@ module Immagine
     end
 
     def valid_for_else?
-      height || width || blur?
+      height || width || blur? || overlay?
     end
 
     def extract_first_integer(regex_key)
