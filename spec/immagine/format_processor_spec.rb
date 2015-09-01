@@ -30,8 +30,6 @@ describe Immagine::FormatProcessor do
         ov
         ov#dominant
         ov#eee
-        ov#dominant-40
-        ov#fff-45
         ovcNWh100w100
         ovb1.1-11cNWh100w100
       ).each do |code|
@@ -224,10 +222,9 @@ describe Immagine::FormatProcessor do
     end
   end
 
-  context 'ovXX-XX' do
-    let(:format)          { "ov#{overlay_color}-#{overlay_opacity}" }
+  context 'ovXX' do
+    let(:format)          { "ov#{overlay_color}" }
     let(:overlay_color)   { '#ffffff' }
-    let(:overlay_opacity) { 80 }
 
     describe '#max' do
       it { expect(subject.max).to be_nil }
@@ -273,11 +270,7 @@ describe Immagine::FormatProcessor do
       it { expect(subject.overlay_color).to eq(overlay_color) }
     end
 
-    describe '#overlay_opacity' do
-      it { expect(subject.overlay_opacity).to eq(overlay_opacity) }
-    end
-
-    context 'variations in ovXX-XX' do
+    context 'variations in ovXX' do
       context 'ov' do
         let(:format) { 'ov' }
 
@@ -287,10 +280,6 @@ describe Immagine::FormatProcessor do
 
         describe '#overlay_color' do
           it { expect(subject.overlay_color).to be_nil }
-        end
-
-        describe '#overlay_opacity' do
-          it { expect(subject.overlay_opacity).to be_nil }
         end
       end
 
@@ -304,26 +293,6 @@ describe Immagine::FormatProcessor do
         describe '#overlay_color' do
           it { expect(subject.overlay_color).to be_nil }
         end
-
-        describe '#overlay_opacity' do
-          it { expect(subject.overlay_opacity).to be_nil }
-        end
-      end
-
-      context 'ov#dominant-60' do
-        let(:format) { 'ov#dominant-60' }
-
-        describe '#overlay?' do
-          it { expect(subject.overlay?).to be_truthy }
-        end
-
-        describe '#overlay_color' do
-          it { expect(subject.overlay_color).to be_nil }
-        end
-
-        describe '#overlay_opacity' do
-          it { expect(subject.overlay_opacity).to eq(60) }
-        end
       end
 
       context 'ov#eee (3-character color code)' do
@@ -336,10 +305,6 @@ describe Immagine::FormatProcessor do
         describe '#overlay_color' do
           it { expect(subject.overlay_color).to eq('#eee') }
         end
-
-        describe '#overlay_opacity' do
-          it { expect(subject.overlay_opacity).to be_nil }
-        end
       end
 
       context 'ov#www (an invalid color code will be ignored)' do
@@ -351,10 +316,6 @@ describe Immagine::FormatProcessor do
 
         describe '#overlay_color' do
           it { expect(subject.overlay_color).to be_nil }
-        end
-
-        describe '#overlay_opacity' do
-          it { expect(subject.overlay_opacity).to be_nil }
         end
       end
     end
