@@ -4,8 +4,6 @@ module Immagine
 
     attr_reader :format_string
 
-    # TODO: make quality part of this option
-
     REGEX = {
       height:   /h(\d+)/,
       width:    /w(\d+)/,
@@ -13,7 +11,7 @@ module Immagine
       relative: /rel/,
       crop:     /c([A-Z]{1,2})/,
       blur:     /b([\d\.]+)-?([\d\.]+)?/,
-      overlay:  /ov#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|dominant)?/
+      overlay:  /ov#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|dominant)?-?(\d{1,2})?/
     }
 
     def initialize(format_string)
@@ -78,6 +76,11 @@ module Immagine
       match = extract_first_match(:overlay)
       return nil unless match
       match == 'dominant' ? nil : "##{match}"
+    end
+
+    memoize def overlay_opacity
+      match = extract_second_match(:overlay)
+      match.to_i if match
     end
 
     private
