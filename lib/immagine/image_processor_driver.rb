@@ -14,6 +14,7 @@ module Immagine
       if format_processor.relative?
         image_processor.resize_relative_to_original!
       elsif format_processor.crop?
+        image_processor.constrain_width!((image_processor.img.columns / 2).to_i)
         image_processor.crop!(format_processor.crop_gravity, format_processor.width, format_processor.height)
       elsif format_processor.max
         image_processor.resize_by_max!(format_processor.max)
