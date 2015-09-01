@@ -9,6 +9,8 @@ module Immagine
     end
 
     def process
+      image_processor.overlay!(format_processor.overlay_color, format_processor.overlay_opacity) if format_processor.overlay?
+
       if format_processor.relative?
         image_processor.resize_relative_to_original!
       elsif format_processor.crop?
@@ -24,7 +26,6 @@ module Immagine
       end
 
       image_processor.blur!(format_processor.blur_radius, format_processor.blur_sigma) if format_processor.blur?
-      image_processor.overlay!(format_processor.overlay_color, format_processor.overlay_opacity) if format_processor.overlay?
 
       img = image_processor.img
 
