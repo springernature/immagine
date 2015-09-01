@@ -57,11 +57,11 @@ module Immagine
       new_img && new_img.destroy!
     end
 
-    def overlay!(color = nil, percent = nil)
+    def overlay!(color = nil)
       color ||= dominant_color[:chosen][:hex]
       percent ||= 80
       overlay = Magick::Image.new(img.columns, img.rows, Magick::SolidFill.new(color))
-      @img    = img.blend(overlay, "#{percent}%")
+      img.composite!(overlay, Magick::NorthWestGravity, Magick::MultiplyCompositeOp)
     ensure
       overlay && overlay.destroy!
     end
