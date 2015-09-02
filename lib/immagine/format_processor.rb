@@ -4,14 +4,16 @@ module Immagine
 
     attr_reader :format_string
 
+    # TODO: make quality part of this option
+
     REGEX = {
       height:   /h(\d+)/,
       width:    /w(\d+)/,
       max:      /m(\d+)/,
       relative: /rel/,
-      crop:     /c([A-Z]{1,2})/,
+      crop:     /c([A-Z]{1,2})-([\d]+)-([\d]+)-?([\d\.]+)?/,
       blur:     /b([\d\.]+)-?([\d\.]+)?/,
-      overlay:  /ov#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|dominant)?-?(\d{1,2})?/
+      overlay:  /ov([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|dominant)?-?(\d{1,2})?/
     }
 
     def initialize(format_string)
@@ -19,9 +21,7 @@ module Immagine
     end
 
     def valid?
-      if crop?
-        valid_for_crop?
-      elsif relative?
+      if relative?
         valid_for_relative?
       elsif max
         valid_for_max?
@@ -47,11 +47,26 @@ module Immagine
     end
 
     def crop?
-      !!crop_gravity
+      !!format_string.match(REGEX[:crop])
     end
 
     memoize def crop_gravity
       extract_first_match(:crop)
+    end
+
+    memoize def crop_width
+      match = extract_second_match(:crop)
+      match.to_i if match
+    end
+
+    memoize def crop_height
+      match = extract_third_match(:crop)
+      match.to_i if match
+    end
+
+    memoize def crop_resize_ratio
+      match = extract_fourth_match(:crop)
+      match.to_f if match
     end
 
     def blur?
@@ -85,26 +100,16 @@ module Immagine
 
     private
 
-    def valid_for_crop?
-      if relative? || max
-        false
-      elsif height && width
-        true
-      else
-        false
-      end
-    end
-
     def valid_for_relative?
-      !(height || width || max || crop?)
+      !(height || width || max)
     end
 
     def valid_for_max?
-      !(height || width || crop? || relative?)
+      !(height || width || relative?)
     end
 
     def valid_for_else?
-      height || width || blur? || overlay?
+      height || width || crop? || blur? || overlay?
     end
 
     def extract_first_integer(regex_key)
@@ -113,13 +118,24 @@ module Immagine
     end
 
     def extract_first_match(regex_key)
-      match = format_string.match(REGEX[regex_key])
-      match[1] if match
+      extract_n_match(1, regex_key)
     end
 
     def extract_second_match(regex_key)
+      extract_n_match(2, regex_key)
+    end
+
+    def extract_third_match(regex_key)
+      extract_n_match(3, regex_key)
+    end
+
+    def extract_fourth_match(regex_key)
+      extract_n_match(4, regex_key)
+    end
+
+    def extract_n_match(n, regex_key)
       match = format_string.match(REGEX[regex_key])
-      match[2] if match
+      match[n] if match
     end
   end
 end
