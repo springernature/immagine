@@ -17,7 +17,11 @@ describe Immagine::FormatProcessor do
         rel
         relb2
         m500
-        cNWh100w100
+        cNW-100-100
+        cNW-100-100-2
+        cW-100-100-0.5
+        relcW-100-100-0.5
+        w1000cW-100-100-0.5
         b12.1
         b1.1-11
         b1.1-11.1
@@ -28,12 +32,12 @@ describe Immagine::FormatProcessor do
         w100
         h100w100
         ov
-        ov#dominant
-        ov#eee
-        ov#dominant-40
-        ov#fff-45
-        ovcNWh100w100
-        ovb1.1-11cNWh100w100
+        ovdominant
+        oveee
+        ovdominant-40
+        ovfff-45
+        ovcNW-100-100
+        ovb1.1-11cNW-100-100
       ).each do |code|
         describe "#{code}" do
           it { expect(described_class.new(code)).to be_valid }
@@ -45,11 +49,8 @@ describe Immagine::FormatProcessor do
       %w(
         h100rel
         relw120
-        cNh100
-        cNw100
-        cNh100w100rel
+        cNW-100
         m100rel
-        m100cN
         m100h100
         m100w100
       ).each do |code|
@@ -83,20 +84,12 @@ describe Immagine::FormatProcessor do
       it { expect(subject.crop?).to be_falsey }
     end
 
-    describe '#crop_gravity' do
-      it { expect(subject.crop_gravity).to be_nil }
-    end
-
     describe '#blur?' do
       it { expect(subject.blur?).to be_falsey }
     end
 
-    describe '#blur_radius' do
-      it { expect(subject.blur_radius).to be_nil }
-    end
-
-    describe '#blur_sigma' do
-      it { expect(subject.blur_sigma).to be_nil }
+    describe '#overlay?' do
+      it { expect(subject.overlay?).to be_falsey }
     end
   end
 
@@ -124,20 +117,12 @@ describe Immagine::FormatProcessor do
       it { expect(subject.crop?).to be_falsey }
     end
 
-    describe '#crop_gravity' do
-      it { expect(subject.crop_gravity).to be_nil }
-    end
-
     describe '#blur?' do
       it { expect(subject.blur?).to be_falsey }
     end
 
-    describe '#blur_radius' do
-      it { expect(subject.blur_radius).to be_nil }
-    end
-
-    describe '#blur_sigma' do
-      it { expect(subject.blur_sigma).to be_nil }
+    describe '#overlay?' do
+      it { expect(subject.overlay?).to be_falsey }
     end
   end
 
@@ -165,20 +150,12 @@ describe Immagine::FormatProcessor do
       it { expect(subject.crop?).to be_falsey }
     end
 
-    describe '#crop_gravity' do
-      it { expect(subject.crop_gravity).to be_nil }
-    end
-
     describe '#blur?' do
       it { expect(subject.blur?).to be_falsey }
     end
 
-    describe '#blur_radius' do
-      it { expect(subject.blur_radius).to be_nil }
-    end
-
-    describe '#blur_sigma' do
-      it { expect(subject.blur_sigma).to be_nil }
+    describe '#overlay?' do
+      it { expect(subject.overlay?).to be_falsey }
     end
   end
 
@@ -207,10 +184,6 @@ describe Immagine::FormatProcessor do
       it { expect(subject.crop?).to be_falsey }
     end
 
-    describe '#crop_gravity' do
-      it { expect(subject.crop_gravity).to be_nil }
-    end
-
     describe '#blur?' do
       it { expect(subject.blur?).to be_truthy }
     end
@@ -222,11 +195,15 @@ describe Immagine::FormatProcessor do
     describe '#blur_sigma' do
       it { expect(subject.blur_sigma).to eq(blur_sigma) }
     end
+
+    describe '#overlay?' do
+      it { expect(subject.overlay?).to be_falsey }
+    end
   end
 
   context 'ovXX-XX' do
     let(:format)          { "ov#{overlay_color}-#{overlay_opacity}" }
-    let(:overlay_color)   { '#ffffff' }
+    let(:overlay_color)   { 'ffffff' }
     let(:overlay_opacity) { 80 }
 
     describe '#max' do
@@ -249,20 +226,8 @@ describe Immagine::FormatProcessor do
       it { expect(subject.crop?).to be_falsey }
     end
 
-    describe '#crop_gravity' do
-      it { expect(subject.crop_gravity).to be_nil }
-    end
-
     describe '#blur?' do
       it { expect(subject.blur?).to be_falsey }
-    end
-
-    describe '#blur_radius' do
-      it { expect(subject.blur_radius).to be_nil }
-    end
-
-    describe '#blur_sigma' do
-      it { expect(subject.blur_sigma).to be_nil }
     end
 
     describe '#overlay?' do
@@ -270,7 +235,7 @@ describe Immagine::FormatProcessor do
     end
 
     describe '#overlay_color' do
-      it { expect(subject.overlay_color).to eq(overlay_color) }
+      it { expect(subject.overlay_color).to eq("##{overlay_color}") }
     end
 
     describe '#overlay_opacity' do
@@ -294,8 +259,8 @@ describe Immagine::FormatProcessor do
         end
       end
 
-      context 'ov#dominant' do
-        let(:format) { 'ov#dominant' }
+      context 'ovdominant' do
+        let(:format) { 'ovdominant' }
 
         describe '#overlay?' do
           it { expect(subject.overlay?).to be_truthy }
@@ -310,8 +275,8 @@ describe Immagine::FormatProcessor do
         end
       end
 
-      context 'ov#dominant-60' do
-        let(:format) { 'ov#dominant-60' }
+      context 'ovdominant-60' do
+        let(:format) { 'ovdominant-60' }
 
         describe '#overlay?' do
           it { expect(subject.overlay?).to be_truthy }
@@ -326,8 +291,8 @@ describe Immagine::FormatProcessor do
         end
       end
 
-      context 'ov#eee (3-character color code)' do
-        let(:format) { 'ov#eee' }
+      context 'oveee (3-character color code)' do
+        let(:format) { 'oveee' }
 
         describe '#overlay?' do
           it { expect(subject.overlay?).to be_truthy }
@@ -342,8 +307,8 @@ describe Immagine::FormatProcessor do
         end
       end
 
-      context 'ov#www (an invalid color code will be ignored)' do
-        let(:format) { 'ov#www' }
+      context 'ovwww (an invalid color code will be ignored)' do
+        let(:format) { 'ovwww' }
 
         describe '#overlay?' do
           it { expect(subject.overlay?).to be_truthy }
@@ -385,39 +350,32 @@ describe Immagine::FormatProcessor do
       it { expect(subject.crop?).to be_falsey }
     end
 
-    describe '#crop_gravity' do
-      it { expect(subject.crop_gravity).to be_nil }
-    end
-
     describe '#blur?' do
       it { expect(subject.blur?).to be_falsey }
     end
 
-    describe '#blur_radius' do
-      it { expect(subject.blur_radius).to be_nil }
-    end
-
-    describe '#blur_sigma' do
-      it { expect(subject.blur_sigma).to be_nil }
+    describe '#overlay?' do
+      it { expect(subject.overlay?).to be_falsey }
     end
   end
 
-  context 'cXXhXXXwXXX' do
-    let(:format)  { "c#{gravity}h#{height}w#{width}" }
-    let(:height)  { 200 }
-    let(:width)   { 200 }
-    let(:gravity) { 'C' }
+  context 'cXX-XXX-XXX-XX' do
+    let(:format)        { "c#{gravity}-#{height}-#{width}-#{resize_ratio}" }
+    let(:height)        { 200 }
+    let(:width)         { 200 }
+    let(:gravity)       { 'C' }
+    let(:resize_ratio)  { 0.5 }
 
     describe '#max' do
       it { expect(subject.max).to be_nil }
     end
 
     describe '#height' do
-      it { expect(subject.height).to eq(height) }
+      it { expect(subject.height).to be_nil }
     end
 
     describe '#width' do
-      it { expect(subject.width).to eq(width) }
+      it { expect(subject.width).to be_nil }
     end
 
     describe '#relative?' do
@@ -432,16 +390,24 @@ describe Immagine::FormatProcessor do
       it { expect(subject.crop_gravity).to eq(gravity) }
     end
 
+    describe '#crop_width' do
+      it { expect(subject.crop_width).to eq(width) }
+    end
+
+    describe '#crop_height' do
+      it { expect(subject.crop_height).to eq(height) }
+    end
+
+    describe '#crop_resize_ratio' do
+      it { expect(subject.crop_resize_ratio).to eq(resize_ratio) }
+    end
+
     describe '#blur?' do
       it { expect(subject.blur?).to be_falsey }
     end
 
-    describe '#blur_radius' do
-      it { expect(subject.blur_radius).to be_nil }
-    end
-
-    describe '#blur_sigma' do
-      it { expect(subject.blur_sigma).to be_nil }
+    describe '#overlay?' do
+      it { expect(subject.overlay?).to be_falsey }
     end
   end
 
@@ -471,10 +437,6 @@ describe Immagine::FormatProcessor do
       it { expect(subject.crop?).to be_falsey }
     end
 
-    describe '#crop_gravity' do
-      it { expect(subject.crop_gravity).to be_nil }
-    end
-
     describe '#blur?' do
       it { expect(subject.blur?).to be_truthy }
     end
@@ -486,10 +448,14 @@ describe Immagine::FormatProcessor do
     describe '#blur_sigma' do
       it { expect(subject.blur_sigma).to be_nil }
     end
+
+    describe '#overlay?' do
+      it { expect(subject.overlay?).to be_falsey }
+    end
   end
 
-  context 'bXXcXXhXXXwXXX' do
-    let(:format)  { "b#{blur}c#{gravity}h#{height}w#{width}" }
+  context 'bXXcXX-XXX-XXX' do
+    let(:format)  { "b#{blur}c#{gravity}-#{height}-#{width}" }
     let(:height)  { 200 }
     let(:width)   { 200 }
     let(:gravity) { 'NW' }
@@ -500,11 +466,11 @@ describe Immagine::FormatProcessor do
     end
 
     describe '#height' do
-      it { expect(subject.height).to eq(height) }
+      it { expect(subject.height).to be_nil }
     end
 
     describe '#width' do
-      it { expect(subject.width).to eq(width) }
+      it { expect(subject.width).to be_nil }
     end
 
     describe '#relative?' do
@@ -519,6 +485,18 @@ describe Immagine::FormatProcessor do
       it { expect(subject.crop_gravity).to eq('NW') }
     end
 
+    describe '#crop_width' do
+      it { expect(subject.crop_width).to eq(width) }
+    end
+
+    describe '#crop_height' do
+      it { expect(subject.crop_height).to eq(height) }
+    end
+
+    describe '#crop_resize_ratio' do
+      it { expect(subject.crop_resize_ratio).to be_nil }
+    end
+
     describe '#blur?' do
       it { expect(subject.blur?).to be_truthy }
     end
@@ -529,6 +507,10 @@ describe Immagine::FormatProcessor do
 
     describe '#blur_sigma' do
       it { expect(subject.blur_sigma).to be_nil }
+    end
+
+    describe '#overlay?' do
+      it { expect(subject.overlay?).to be_falsey }
     end
   end
 
@@ -557,10 +539,6 @@ describe Immagine::FormatProcessor do
       it { expect(subject.crop?).to be_falsey }
     end
 
-    describe '#crop_gravity' do
-      it { expect(subject.crop_gravity).to be_nil }
-    end
-
     describe '#blur?' do
       it { expect(subject.blur?).to be_truthy }
     end
@@ -571,6 +549,10 @@ describe Immagine::FormatProcessor do
 
     describe '#blur_sigma' do
       it { expect(subject.blur_sigma).to be_nil }
+    end
+
+    describe '#overlay?' do
+      it { expect(subject.overlay?).to be_falsey }
     end
   end
 end

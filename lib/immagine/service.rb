@@ -60,6 +60,9 @@ module Immagine
         send_file(static_file)
       end
 
+      # FIXME: make it so we don't consider the whitelist in development mode?
+      # FIXME: make the whitelist optional?
+
       # check the format_code is on the whitelist
       unless Immagine.settings.lookup('size_whitelist').include?(format_code) && format_processor(format_code).valid?
         log_error("404, format code not found (#{format_code}).")
@@ -101,6 +104,7 @@ module Immagine
       elsif dir !~ %r{\A/staging}
         cache_control(:public, max_age: 86_400)
       else
+        # FIXME: make this configurable - i.e. the /staging path being treated special like...
         cache_control(:private, :no_store, max_age: 0)
       end
 

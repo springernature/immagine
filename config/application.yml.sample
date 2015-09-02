@@ -5,7 +5,7 @@ size_whitelist:
   - w450      # At a glance popups
   - w926      # Full size figures
   - m685      # Article figures
-  - relative  # Illustrations
+  - rel       # Illustrations
 
 source_folder: ./test-data/src
 
