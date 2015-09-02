@@ -68,15 +68,15 @@ module Immagine
 
     def crop!(gravity, width, height)
       grav = case gravity
-             when 'NW' then Magick::NorthWestGravity
-             when 'N'  then Magick::NorthGravity
-             when 'NE' then Magick::NorthEastGravity
-             when 'W'  then Magick::WestGravity
              when 'C'  then Magick::CenterGravity
+             when 'N'  then Magick::NorthGravity
              when 'E'  then Magick::EastGravity
-             when 'SW' then Magick::SouthWestGravity
              when 'S'  then Magick::SouthGravity
+             when 'W'  then Magick::WestGravity
+             when 'NE' then Magick::NorthEastGravity
+             when 'NW' then Magick::NorthWestGravity
              when 'SE' then Magick::SouthEastGravity
+             when 'SW' then Magick::SouthWestGravity
              else
                fail ProcessingError, "Unsupported gravity argument '#{gravity}'"
              end

@@ -23,6 +23,7 @@ module Immagine
     end
     attr_writer :logger
 
+    # FIXME: make it so that the statsd conf is optional
     def statsd
       @statsd ||= begin
         environment      = ENV['RACK_ENV'] || 'development'
