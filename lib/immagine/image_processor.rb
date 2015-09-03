@@ -122,7 +122,7 @@ module Immagine
                   resize_image_by_height!(height)
                 end
 
-      resized.crop(Magick::CenterGravity, width, height)
+      resized.crop!(Magick::CenterGravity, width, height)
     end
 
     def resize_relative_to_original!
