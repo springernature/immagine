@@ -145,76 +145,56 @@ describe Immagine::Service do
       end
 
       context 'Cache-Control' do
-        context 'when a X-Cache-Control HTTP header HAS been passed' do
-          it 'sets the cache and edge control headers accordingly for public resources' do
-            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=60' }
+        context 'when the image requested is NOT a STAGING asset' do
+          it 'sets the Cache-Control as PUBLIC' do
+            get '/live/images/kitten.jpg'
 
             expect(last_response).to be_ok
-            expect(last_response.header['Cache-Control']).to eq('public, max-age=60')
-            expect(last_response.header['Edge-Control']).to be_nil
+            expect(last_response.header['Cache-Control']).to include('public')
           end
 
-          it 'sets the cache and edge control headers accordingly for private resources' do
-            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'private, max-age=30' }
+          it 'sets the Max-Age as 30 days' do
+            get '/uploads/images/kitten.jpg'
 
             expect(last_response).to be_ok
-            expect(last_response.header['Cache-Control']).to eq('private, max-age=30')
-            expect(last_response.header['Edge-Control']).to eq('no-store, max-age=0')
+            expect(last_response.header['Cache-Control']).to include('max-age=2592000')
           end
         end
 
-        context 'when a X-Cache-Control HTTP header HAS NOT been passed' do
-          context 'when the image requested is NOT a STAGING asset' do
-            it 'sets the Cache-Control as PUBLIC' do
-              get '/live/images/kitten.jpg'
+        context 'when the image requested is a STAGING asset' do
+          it 'sets the Cache-Control as PRIVATE' do
+            get '/staging/images/kitten.jpg'
 
-              expect(last_response).to be_ok
-              expect(last_response.header['Cache-Control']).to include('public')
-            end
-
-            it 'sets the Max-Age as 1 day' do
-              get '/uploads/images/kitten.jpg'
-
-              expect(last_response).to be_ok
-              expect(last_response.header['Cache-Control']).to include('max-age=86400')
-            end
+            expect(last_response).to be_ok
+            expect(last_response.header['Cache-Control']).to include('private')
           end
 
-          context 'when the image requested is a STAGING asset' do
-            it 'sets the Cache-Control as PRIVATE' do
-              get '/staging/images/kitten.jpg'
+          it 'sets Cache-Control as no-store' do
+            get '/staging/images/kitten.jpg'
 
-              expect(last_response).to be_ok
-              expect(last_response.header['Cache-Control']).to include('private')
-            end
+            expect(last_response).to be_ok
+            expect(last_response.header['Cache-Control']).to include('no-store')
+          end
 
-            it 'sets Cache-Control as no-store' do
-              get '/staging/images/kitten.jpg'
+          it 'sets the Max-Age as 0' do
+            get '/staging/images/kitten.jpg'
 
-              expect(last_response).to be_ok
-              expect(last_response.header['Cache-Control']).to include('no-store')
-            end
+            expect(last_response).to be_ok
+            expect(last_response.header['Cache-Control']).to include('max-age=0')
+          end
 
-            it 'sets the Max-Age as 0' do
-              get '/staging/images/kitten.jpg'
+          it 'sets Edge-Control as no-store for Akamai' do
+            get '/staging/images/kitten.jpg'
 
-              expect(last_response).to be_ok
-              expect(last_response.header['Cache-Control']).to include('max-age=0')
-            end
+            expect(last_response).to be_ok
+            expect(last_response.header['Edge-Control']).to include('no-store')
+          end
 
-            it 'sets Edge-Control as no-store for Akamai' do
-              get '/staging/images/kitten.jpg'
+          it 'sets the Edge-Control cache TTL for Akamai' do
+            get '/staging/images/kitten.jpg'
 
-              expect(last_response).to be_ok
-              expect(last_response.header['Edge-Control']).to include('no-store')
-            end
-
-            it 'sets the Edge-Control cache TTL for Akamai' do
-              get '/staging/images/kitten.jpg'
-
-              expect(last_response).to be_ok
-              expect(last_response.header['Edge-Control']).to include('max-age=0')
-            end
+            expect(last_response).to be_ok
+            expect(last_response.header['Edge-Control']).to include('max-age=0')
           end
         end
       end
@@ -222,7 +202,9 @@ describe Immagine::Service do
       context 'stale cache revalidation' do
         context 'images cached for a year or more' do
           it 'sets Stale-While-Revalidate and Stale-If-Error for a month' do
-            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=31536000' }
+            stub_const('Immagine::Service::DEFAULT_EXPIRES', 31536000)
+
+            get '/live/images/kitten.jpg'
 
             expect(last_response).to be_ok
             expect(last_response.header['Stale-While-Revalidate']).to eq('2628000')
@@ -232,7 +214,9 @@ describe Immagine::Service do
 
         context 'images cached for a month or more' do
           it 'sets Stale-While-Revalidate and Stale-If-Error for a week' do
-            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=2628000' }
+            stub_const('Immagine::Service::DEFAULT_EXPIRES', 2628000)
+
+            get '/live/images/kitten.jpg'
 
             expect(last_response).to be_ok
             expect(last_response.header['Stale-While-Revalidate']).to eq('86400')
@@ -242,7 +226,9 @@ describe Immagine::Service do
 
         context 'images cached for a week or more' do
           it 'sets Stale-While-Revalidate and Stale-If-Error for an hour' do
-            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=86400' }
+            stub_const('Immagine::Service::DEFAULT_EXPIRES', 86400)
+
+            get '/live/images/kitten.jpg'
 
             expect(last_response).to be_ok
             expect(last_response.header['Stale-While-Revalidate']).to eq('3600')
@@ -252,7 +238,9 @@ describe Immagine::Service do
 
         context 'images cached for an hour or more' do
           it 'sets Stale-While-Revalidate and Stale-If-Error for a minute' do
-            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=3600' }
+            stub_const('Immagine::Service::DEFAULT_EXPIRES', 3600)
+
+            get '/live/images/kitten.jpg'
 
             expect(last_response).to be_ok
             expect(last_response.header['Stale-While-Revalidate']).to eq('60')
@@ -262,7 +250,9 @@ describe Immagine::Service do
 
         context 'images cached for less than an hour' do
           it 'does not set Stale-While-Revalidate and Stale-If-Error' do
-            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public, max-age=500' }
+            stub_const('Immagine::Service::DEFAULT_EXPIRES', 500)
+
+            get '/live/images/kitten.jpg'
 
             expect(last_response).to be_ok
             expect(last_response.header['Stale-While-Revalidate']).to be_nil
@@ -272,7 +262,9 @@ describe Immagine::Service do
 
         context 'images with no max-age' do
           it 'does not set Stale-While-Revalidate and Stale-If-Error' do
-            get '/live/images/kitten.jpg', {}, { 'HTTP_X_CACHE_CONTROL' => 'public' }
+            stub_const('Immagine::Service::DEFAULT_EXPIRES', 0)
+
+            get '/live/images/kitten.jpg'
 
             expect(last_response).to be_ok
             expect(last_response.header['Stale-While-Revalidate']).to be_nil
@@ -371,46 +363,35 @@ describe Immagine::Service do
     context 'Cache-Control' do
       let(:format_code) { Immagine.settings.lookup('size_whitelist').sample }
 
-      context 'when a X-Cache-Control HTTP header HAS been passed' do
-        it 'sets the cache control headers accordingly' do
-          get "/live/images/#{format_code}/kitten.jpg", {}, { 'HTTP_X_CACHE_CONTROL' => 'private, max-age=60' }
+      context 'when the image requested is NOT a STAGING asset' do
+        it 'sets the Cache-Control as PUBLIC' do
+          get "/live/images/#{format_code}/kitten.jpg"
 
           expect(last_response).to be_ok
-          expect(last_response.header['Cache-Control']).to eq('private, max-age=60')
+          expect(last_response.header['Cache-Control']).to include('public')
+        end
+
+        it 'sets the Max-Age as 30 days' do
+          get "/uploads/images/#{format_code}/kitten.jpg"
+
+          expect(last_response).to be_ok
+          expect(last_response.header['Cache-Control']).to include('max-age=2592000')
         end
       end
 
-      context 'when a X-Cache-Control HTTP header HAS NOT been passed' do
-        context 'when the image requested is NOT a STAGING asset' do
-          it 'sets the Cache-Control as PUBLIC' do
-            get "/live/images/#{format_code}/kitten.jpg"
+      context 'when the image requested is a STAGING asset' do
+        it 'sets the Cache-Control as PRIVATE' do
+          get "/staging/images/#{format_code}/kitten.jpg"
 
-            expect(last_response).to be_ok
-            expect(last_response.header['Cache-Control']).to include('public')
-          end
-
-          it 'sets the Max-Age as 1 day' do
-            get "/uploads/images/#{format_code}/kitten.jpg"
-
-            expect(last_response).to be_ok
-            expect(last_response.header['Cache-Control']).to include('max-age=86400')
-          end
+          expect(last_response).to be_ok
+          expect(last_response.header['Cache-Control']).to include('private')
         end
 
-        context 'when the image requested is a STAGING asset' do
-          it 'sets the Cache-Control as PRIVATE' do
-            get "/staging/images/#{format_code}/kitten.jpg"
+        it 'sets the Max-Age as 0' do
+          get "/staging/images/#{format_code}/kitten.jpg"
 
-            expect(last_response).to be_ok
-            expect(last_response.header['Cache-Control']).to include('private')
-          end
-
-          it 'sets the Max-Age as 0' do
-            get "/staging/images/#{format_code}/kitten.jpg"
-
-            expect(last_response).to be_ok
-            expect(last_response.header['Cache-Control']).to include('max-age=0')
-          end
+          expect(last_response).to be_ok
+          expect(last_response.header['Cache-Control']).to include('max-age=0')
         end
       end
     end

@@ -5,6 +5,7 @@ require 'json'
 module Immagine
   class Service < Sinatra::Base
     DEFAULT_IMAGE_QUALITY = 85
+    DEFAULT_EXPIRES       = 30 * 24 * 60 * 60 # 30 days in seconds
 
     configure do
       set :root, File.join(File.dirname(__FILE__), 'service')
@@ -99,13 +100,11 @@ module Immagine
     private
 
     def set_cache_control_headers(request, dir)
-      if custom_cache_control = request.env['HTTP_X_CACHE_CONTROL']
-        cache_control(custom_cache_control)
-      elsif dir !~ %r{\A/staging}
-        cache_control(:public, max_age: 86_400)
-      else
+      if dir.match(%r{\A/staging})
         # FIXME: make this configurable - i.e. the /staging path being treated special like...
         cache_control(:private, :no_store, max_age: 0)
+      else
+        expires(DEFAULT_EXPIRES, :public)
       end
 
       prevent_storage_on_akamai if response['Cache-Control'].include? 'private'
