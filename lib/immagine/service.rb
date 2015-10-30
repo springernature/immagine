@@ -143,7 +143,6 @@ module Immagine
       format_proc = format_processor(format)
 
       fail "Unsupported format: '#{format}'" unless format_proc.valid?
-
       ImageProcessorDriver.new(image_proc, format_proc, quality).process
     end
 

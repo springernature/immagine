@@ -135,6 +135,16 @@ module Immagine
       end
     end
 
+    def convert_format!(format)
+	  convert = case format
+             when 'WEBP' then img.format = 'WEBP'
+             when 'JPEG' then img.format = 'JPEG'
+             when 'PNG'  then img.format = 'PNG'
+             when 'GIF'  then img.format = 'GIF'
+             else
+               fail ProcessingError, "Unsupported format argument '#{format}'"
+             end
+    end
     private
 
     def pixel_color_at(x, y, image = img)
@@ -167,6 +177,12 @@ module Immagine
 
     def resize!(scale_factor)
       img.resize!(scale_factor)
+      serve_image
+    end
+
+    def serve_image
+      img.compression = Magick::JPEGCompression if img.format == 'JPEG'
+      img.interlace   = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
       img
     end
 
