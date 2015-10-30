@@ -23,7 +23,7 @@ module Immagine
         image_processor.constrain_width!(format_processor.width)
       elsif format_processor.height
         image_processor.constrain_height!(format_processor.height)
-      end
+      end	
 
       # CROP
       if format_processor.crop?
@@ -40,6 +40,12 @@ module Immagine
 
       # BLUR
       image_processor.blur!(format_processor.blur_radius, format_processor.blur_sigma) if format_processor.blur?
+	  
+	  
+	  # CONVERT
+      if format_processor.convert?
+        image_processor.convert_format!(format_processor.conversion_type)
+      end
 
       img = image_processor.img
 

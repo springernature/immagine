@@ -13,7 +13,8 @@ module Immagine
       relative: /rel/,
       crop:     /c([A-Z]{1,2})-([\d]+)-([\d]+)-?([\d\.]+)?/,
       blur:     /b([\d\.]+)-?([\d\.]+)?/,
-      overlay:  /ov([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|dominant)?-?(\d{1,2})?/
+      overlay:  /ov([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|dominant)?-?(\d{1,2})?/,
+      convert:  /c([A-Z]{3,4})?/
     }
 
     def initialize(format_string)
@@ -42,7 +43,7 @@ module Immagine
       extract_first_integer(:max)
     end
 
-    memoize def relative?
+	memoize def relative?
       !!format_string.match(REGEX[:relative])
     end
 
@@ -98,6 +99,14 @@ module Immagine
       match.to_i if match
     end
 
+    memoize def convert?
+      !!format_string.match(REGEX[:convert])
+    end
+
+    memoize def conversion_type
+      :convert[0] = ""
+    end
+
     private
 
     def valid_for_relative?
@@ -109,7 +118,7 @@ module Immagine
     end
 
     def valid_for_else?
-      height || width || crop? || blur? || overlay?
+      height || width || crop? || blur? || overlay? || convert?
     end
 
     def extract_first_integer(regex_key)

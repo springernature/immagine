@@ -53,8 +53,7 @@ module Immagine
 
       # check to see if this is an *actual* filepath
       static_file = File.join(Immagine.settings.lookup('source_folder'), dir, format_code, basename)
-
-      if File.exist?(static_file)
+	  if File.exist?(static_file)
         etag(calculate_etags(dir, format_code, basename, static_file))
         set_cache_control_headers(request, dir)
         statsd.increment('serve_original_image')
@@ -143,7 +142,6 @@ module Immagine
       format_proc = format_processor(format)
 
       fail "Unsupported format: '#{format}'" unless format_proc.valid?
-
       ImageProcessorDriver.new(image_proc, format_proc, quality).process
     end
 
