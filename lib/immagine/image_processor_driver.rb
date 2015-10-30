@@ -40,6 +40,11 @@ module Immagine
 
       # BLUR
       image_processor.blur!(format_processor.blur_radius, format_processor.blur_sigma) if format_processor.blur?
+	  
+      # CONVERT
+      if format_processor.convert?
+        image_processor.convert_format!(format_processor.conversion_type)
+      end
 
       img = image_processor.img
 
