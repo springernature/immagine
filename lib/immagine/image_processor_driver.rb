@@ -45,7 +45,10 @@ module Immagine
 
       img.strip!
 
-      blob = img.to_blob { self.quality = quality }
+      blob = img.to_blob do
+        self.quality   = quality
+        self.interlace = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
+      end
       mime = img.mime_type
 
       [blob, mime]
