@@ -126,27 +126,5 @@ module Immagine
         end
       end
     end
-
-    describe 'Properties of produces images' do
-      describe 'when the format is JPEG' do
-        it 'uses JPEGCompression' do
-          img = processor.constrain_width!(100)
-
-          expect(img.compression).to eq(Magick::JPEGCompression)
-        end
-      end
-
-      it 'uses baseline encoding for small images' do
-        img = processor.resize_by_max!(20)
-
-        expect(img.interlace).to eq(Magick::NoInterlace)
-      end
-
-      it 'uses progressive encoding for bigger images' do
-        img = processor.resize_by_max!(600)
-
-        expect(img.interlace).to eq(Magick::PlaneInterlace)
-      end
-    end
   end
 end

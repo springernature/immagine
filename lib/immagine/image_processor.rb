@@ -90,7 +90,7 @@ module Immagine
 
     def constrain_width!(width)
       if img.columns <= width
-        serve_image
+        img
       else
         resize_image_by_width!(width)
       end
@@ -98,7 +98,7 @@ module Immagine
 
     def constrain_height!(height)
       if img.rows <= height
-        serve_image
+        img
       else
         resize_image_by_height!(height)
       end
@@ -127,7 +127,7 @@ module Immagine
 
     def resize_relative_to_original!
       if img.columns <= 300
-        serve_image
+        img
       elsif img.rows <= 1050
         resize_image_by_width!(300)
       else
@@ -167,12 +167,6 @@ module Immagine
 
     def resize!(scale_factor)
       img.resize!(scale_factor)
-      serve_image
-    end
-
-    def serve_image
-      img.compression = Magick::JPEGCompression if img.format == 'JPEG'
-      img.interlace   = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
       img
     end
 

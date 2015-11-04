@@ -431,4 +431,23 @@ describe Immagine::Service do
       end
     end
   end
+
+  describe 'image encoding' do
+    # http://en.wikipedia.org/wiki/JPEG
+    # SOF2 [255, 194] = Start Of Frame (Progressive DCT)
+
+    it 'uses progressive encoding for large images' do
+      get '/live/images/m685/kitten.jpg'
+
+      expect(last_response).to be_ok
+      expect(last_response.body.bytes.join(',')).to include('255,194')
+    end
+
+    it 'uses baseline encoding for thumbnails' do
+      get '/live/images/w100h100/kitten.jpg'
+
+      expect(last_response).to be_ok
+      expect(last_response.body.bytes.join(',')).to_not include('255,194')
+    end
+  end
 end
