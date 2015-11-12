@@ -113,25 +113,25 @@ module Immagine
     end
 
     def set_stale_headers
-      if response['Cache-Control'] =~ /max-age=(\d+)/
-        max_age   = Regexp.last_match[1].to_i
-        stale_age = if max_age >= 31_536_000
-                      2_628_000
-                    elsif max_age >= 2_628_000
-                      86_400
-                    elsif max_age >= 86_400
-                      3600
-                    elsif max_age >= 3600
-                      60
-                    else
-                      0
-                    end
+      return unless response['Cache-Control'] =~ /max-age=(\d+)/
 
-        if stale_age > 0
-          response['Stale-While-Revalidate'] = stale_age.to_s
-          response['Stale-If-Error']         = stale_age.to_s
-        end
-      end
+      max_age   = Regexp.last_match[1].to_i
+      stale_age = if max_age >= 31_536_000
+                    2_628_000
+                  elsif max_age >= 2_628_000
+                    86_400
+                  elsif max_age >= 86_400
+                    3600
+                  elsif max_age >= 3600
+                    60
+                  else
+                    0
+                  end
+
+      return unless stale_age > 0
+
+      response['Stale-While-Revalidate'] = stale_age.to_s
+      response['Stale-If-Error']         = stale_age.to_s
     end
 
     def prevent_storage_on_akamai
