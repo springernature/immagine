@@ -2,3 +2,4 @@
 config/application.yml
 test-data/target/
 artifacts
+log/*.log
