@@ -178,12 +178,6 @@ module Immagine
 
     def resize!(scale_factor)
       img.resize!(scale_factor)
-      serve_image
-    end
-
-    def serve_image
-      img.compression = Magick::JPEGCompression if img.format == 'JPEG'
-      img.interlace   = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
       img
     end
 
