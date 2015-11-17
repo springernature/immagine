@@ -430,24 +430,43 @@ describe Immagine::Service do
         end
       end
     end
-  end
 
-  describe 'image encoding' do
-    # http://en.wikipedia.org/wiki/JPEG
-    # SOF2 [255, 194] = Start Of Frame (Progressive DCT)
+    context 'Image Encoding for JPEGs' do
+      # http://en.wikipedia.org/wiki/JPEG
+      # SOF2 [255, 194] = Start Of Frame (Progressive DCT)
 
-    it 'uses progressive encoding for large images' do
-      get '/live/images/m685/kitten.jpg'
+      it 'uses progressive encoding for large images' do
+        get '/live/images/m685/kitten.jpg'
 
-      expect(last_response).to be_ok
-      expect(last_response.body.bytes.join(',')).to include('255,194')
+        expect(last_response).to be_ok
+        expect(last_response.body.bytes.join(',')).to include('255,194')
+      end
+
+      it 'uses baseline encoding for thumbnails' do
+        get '/live/images/w100h100/kitten.jpg'
+
+        expect(last_response).to be_ok
+        expect(last_response.body.bytes.join(',')).to_not include('255,194')
+      end
     end
 
-    it 'uses baseline encoding for thumbnails' do
-      get '/live/images/w100h100/kitten.jpg'
+    context 'and converting to a different file type' do
+      file_types = %w(jpeg jpg png gif webp)
 
-      expect(last_response).to be_ok
-      expect(last_response.body.bytes.join(',')).to_not include('255,194')
+      context 'when an allowed file type is requested' do
+        file_types.each do |from_format|
+          file_types.each do |to_format|
+            it "converts FROM #{from_format} TO #{to_format}"
+          end
+        end
+      end
+
+      context 'when a disallowed file type is requested' do
+        it 'returns a 404' do
+          get '/live/images/m685/kitten.jpg/convert/kitten.tiff'
+          expect(last_response.status).to eq(404)
+        end
+      end
     end
   end
 end
