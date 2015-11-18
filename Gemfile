@@ -13,6 +13,7 @@ gem 'memoizable'
 group :development do
   gem 'shotgun'
   gem 'pry'
+  gem 'foreman'
 end
 
 group :test do
