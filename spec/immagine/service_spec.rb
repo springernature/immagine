@@ -405,7 +405,7 @@ describe Immagine::Service do
         it 'uses the default image quality setting' do
           expect_any_instance_of(Immagine::Service)
             .to receive(:process_image)
-            .with(file_path, format_code, Immagine::Service::DEFAULT_IMAGE_QUALITY)
+            .with(file_path, format_code, Immagine::Service::DEFAULT_IMAGE_QUALITY, nil)
             .and_call_original
 
           get "/live/images/#{format_code}/kitten.jpg"
@@ -420,7 +420,7 @@ describe Immagine::Service do
         it 'uses the passed quality setting' do
           expect_any_instance_of(Immagine::Service)
             .to receive(:process_image)
-            .with(file_path, format_code, quality)
+            .with(file_path, format_code, quality, nil)
             .and_call_original
 
           header 'X_IMAGE_QUALITY', quality
@@ -451,12 +451,17 @@ describe Immagine::Service do
     end
 
     context 'and converting to a different file type' do
-      file_types = %w(jpeg jpg png gif webp)
+      file_types = %w(jpg png JPG PNG)
 
       context 'when an allowed file type is requested' do
-        file_types.each do |from_format|
-          file_types.each do |to_format|
-            it "converts FROM #{from_format} TO #{to_format}"
+        let(:driver) { double(Immagine::ImageProcessorDriver, process: nil) }
+        file_types.each do |to_format|
+          it "converts to #{to_format}" do
+            expect(Immagine::ImageProcessorDriver).to receive(:new).with(
+              anything, anything, to_format.downcase.to_sym, anything
+            ).and_return(driver)
+
+            get "/live/images/w100h100/kitten.jpg/convert/kitten.#{to_format}"
           end
         end
       end

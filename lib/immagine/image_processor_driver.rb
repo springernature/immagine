@@ -1,11 +1,12 @@
 module Immagine
   class ImageProcessorDriver
-    attr_reader :image_processor, :format_processor, :quality
+    attr_reader :image_processor, :format_processor, :conversion_format, :quality
 
-    def initialize(image_processor, format_processor, quality)
-      @image_processor  = image_processor
-      @format_processor = format_processor
-      @quality          = quality
+    def initialize(image_processor, format_processor, conversion_format, quality)
+      @image_processor   = image_processor
+      @format_processor  = format_processor
+      @conversion_format = conversion_format
+      @quality           = quality
     end
 
     def process
@@ -40,10 +41,10 @@ module Immagine
 
       # BLUR
       image_processor.blur!(format_processor.blur_radius, format_processor.blur_sigma) if format_processor.blur?
-	  
+
       # CONVERT
-      if format_processor.convert?
-        image_processor.convert_format!(format_processor.conversion_type)
+      if conversion_format
+        image_processor.convert_format!(conversion_format)
       end
 
       img = image_processor.img

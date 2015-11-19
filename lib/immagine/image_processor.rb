@@ -2,6 +2,11 @@ require 'fileutils'
 
 module Immagine
   class ImageProcessor
+    SUPPORTED_CONVERSION_FORMATS = {
+      jpg: 'JPEG',
+      png: 'PNG'
+    }
+
     attr_reader :img
 
     def initialize(source)
@@ -136,14 +141,8 @@ module Immagine
     end
 
     def convert_format!(format)
-      case format
-      when 'WEBP' then img.format = 'WEBP'
-      when 'JPEG' then img.format = 'JPEG'
-      when 'PNG'  then img.format = 'PNG'
-      when 'GIF'  then img.format = 'GIF'
-      else
-        fail ProcessingError, "Unsupported format argument '#{format}'"
-      end
+      fail ProcessingError, "Unsupported format '#{format}'" unless SUPPORTED_CONVERSION_FORMATS.keys.include?(format)
+      img.format = SUPPORTED_CONVERSION_FORMATS[format]
     end
 
     private

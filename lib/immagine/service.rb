@@ -6,6 +6,7 @@ module Immagine
   class Service < Sinatra::Base
     DEFAULT_IMAGE_QUALITY = 85
     DEFAULT_EXPIRES       = 30 * 24 * 60 * 60 # 30 days in seconds
+    ALLOWED_CONVERSION_FORMATS = %w(jpg png)
 
     configure do
       set :root, File.join(File.dirname(__FILE__), 'service')
@@ -44,13 +45,16 @@ module Immagine
     end
 
     # resizing and converting end-point
-    get %r{\A(.+)?/([^/]+)/([^/]+)/convert/([^/]+)\z} do |dir, format_code, basename, newname|
+    get %r{\A(.+)?/([^/]+)/([^/]+)/convert/([^\.]+)\.([^\./]+)\z} do |dir, format_code, basename, _newname, newformat|
+      newformat.downcase!
+      check_conversion_format(newformat)
+
       setup_image_processing(dir, format_code, basename)
 
       source_file = source_file_path(dir, basename)
 
       set_etag_and_cache_headers(dir, format_code, basename, source_file)
-      generate_image(format_code, source_file)
+      generate_image(format_code, source_file, convert_to: newformat.to_sym)
     end
 
     # just resizing end-point
@@ -94,6 +98,14 @@ module Immagine
 
       log_error("404, format code not found (#{format_code}).")
       statsd.increment('asset_format_not_in_whitelist')
+      fail Sinatra::NotFound
+    end
+
+    def check_conversion_format(format)
+      return if ALLOWED_CONVERSION_FORMATS.include?(format)
+
+      log_error("404, conversion format not found (#{format}).")
+      statsd.increment('conversion_format_not_in_whitelist')
       fail Sinatra::NotFound
     end
 
@@ -161,10 +173,10 @@ module Immagine
       response['Edge-Control'] = 'no-store, max-age=0'
     end
 
-    def generate_image(format_code, source_file)
+    def generate_image(format_code, source_file, convert_to: nil)
       image_blob, mime = statsd.time('asset_resize') do
         quality = Integer(request.env['HTTP_X_IMAGE_QUALITY'] || DEFAULT_IMAGE_QUALITY)
-        process_image(source_file, format_code, quality)
+        process_image(source_file, format_code, quality, convert_to)
       end
 
       # content type
@@ -173,13 +185,13 @@ module Immagine
       image_blob
     end
 
-    def process_image(path, format, quality)
+    def process_image(path, format, quality, convert_to)
       image_proc  = image_processor(path)
       format_proc = format_processor(format)
 
       fail "Unsupported format: '#{format}'" unless format_proc.valid?
 
-      ImageProcessorDriver.new(image_proc, format_proc, quality).process
+      ImageProcessorDriver.new(image_proc, format_proc, convert_to, quality).process
     end
 
     def image_processor(path)
