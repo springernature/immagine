@@ -405,7 +405,7 @@ describe Immagine::Service do
         it 'uses the default image quality setting' do
           expect_any_instance_of(Immagine::Service)
             .to receive(:process_image)
-            .with(file_path, format_code, Immagine::Service::DEFAULT_IMAGE_QUALITY)
+            .with(file_path, format_code, Immagine::Service::DEFAULT_IMAGE_QUALITY, nil)
             .and_call_original
 
           get "/live/images/#{format_code}/kitten.jpg"
@@ -420,7 +420,7 @@ describe Immagine::Service do
         it 'uses the passed quality setting' do
           expect_any_instance_of(Immagine::Service)
             .to receive(:process_image)
-            .with(file_path, format_code, quality)
+            .with(file_path, format_code, quality, nil)
             .and_call_original
 
           header 'X_IMAGE_QUALITY', quality
@@ -430,24 +430,48 @@ describe Immagine::Service do
         end
       end
     end
-  end
 
-  describe 'image encoding' do
-    # http://en.wikipedia.org/wiki/JPEG
-    # SOF2 [255, 194] = Start Of Frame (Progressive DCT)
+    context 'Image Encoding for JPEGs' do
+      # http://en.wikipedia.org/wiki/JPEG
+      # SOF2 [255, 194] = Start Of Frame (Progressive DCT)
 
-    it 'uses progressive encoding for large images' do
-      get '/live/images/m685/kitten.jpg'
+      it 'uses progressive encoding for large images' do
+        get '/live/images/m685/kitten.jpg'
 
-      expect(last_response).to be_ok
-      expect(last_response.body.bytes.join(',')).to include('255,194')
+        expect(last_response).to be_ok
+        expect(last_response.body.bytes.join(',')).to include('255,194')
+      end
+
+      it 'uses baseline encoding for thumbnails' do
+        get '/live/images/w100h100/kitten.jpg'
+
+        expect(last_response).to be_ok
+        expect(last_response.body.bytes.join(',')).to_not include('255,194')
+      end
     end
 
-    it 'uses baseline encoding for thumbnails' do
-      get '/live/images/w100h100/kitten.jpg'
+    context 'and converting to a different file type' do
+      file_types = %w(jpg png JPG PNG)
 
-      expect(last_response).to be_ok
-      expect(last_response.body.bytes.join(',')).to_not include('255,194')
+      context 'when an allowed file type is requested' do
+        let(:driver) { double(Immagine::ImageProcessorDriver, process: nil) }
+        file_types.each do |to_format|
+          it "converts to #{to_format}" do
+            expect(Immagine::ImageProcessorDriver).to receive(:new).with(
+              anything, anything, to_format.downcase.to_sym, anything
+            ).and_return(driver)
+
+            get "/live/images/w100h100/kitten.jpg/convert/kitten.#{to_format}"
+          end
+        end
+      end
+
+      context 'when a disallowed file type is requested' do
+        it 'returns a 404' do
+          get '/live/images/m685/kitten.jpg/convert/kitten.tiff'
+          expect(last_response.status).to eq(404)
+        end
+      end
     end
   end
 end

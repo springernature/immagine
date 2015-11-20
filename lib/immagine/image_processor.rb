@@ -2,6 +2,11 @@ require 'fileutils'
 
 module Immagine
   class ImageProcessor
+    SUPPORTED_CONVERSION_FORMATS = {
+      jpg: 'JPEG',
+      png: 'PNG'
+    }
+
     attr_reader :img
 
     def initialize(source)
@@ -17,7 +22,7 @@ module Immagine
 
     def average_color
       target = img.dup
-      target.scale!(1,1)
+      target.scale!(1, 1)
       pixel_color_at(0, 0, target)
     ensure
       target && target.destroy!
@@ -31,7 +36,7 @@ module Immagine
 
       # calculate 10 most domainant colours
       quantized = target.quantize(10, Magick::RGBColorspace)
-      hist      = quantized.color_histogram.sort_by { |pixel, count| -count }.map(&:first).take(10)
+      hist      = quantized.color_histogram.sort_by { |_pixel, count| -count }.map(&:first).take(10)
       new_img   = Magick::Image.new(hist.size, 1)
       new_img.store_pixels(0, 0, hist.size, 1, hist)
 
@@ -85,7 +90,7 @@ module Immagine
     end
 
     def blur!(radius, sigma = nil)
-      @img  = img.blur_image(radius, sigma || 1.0)
+      @img = img.blur_image(radius, sigma || 1.0)
     end
 
     def constrain_width!(width)
@@ -133,6 +138,11 @@ module Immagine
       else
         resize_by_max!(703)
       end
+    end
+
+    def convert_format!(format)
+      fail ProcessingError, "Unsupported format '#{format}'" unless SUPPORTED_CONVERSION_FORMATS.keys.include?(format)
+      img.format = SUPPORTED_CONVERSION_FORMATS[format]
     end
 
     private
