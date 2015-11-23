@@ -474,4 +474,18 @@ describe Immagine::Service do
       end
     end
   end
+
+  describe 'video thumbnails' do
+    context 'when the file exists' do
+      it 'returns a 200 response' do
+        get '/live/videos/cat-vs-food.mp4'
+        expect(last_response.status).to eq(200)
+      end
+
+      it 'returns a thumbnail for the video' do
+        get '/live/videos/w100h100/cat-vs-food.mp4'
+        expect(last_response.status).to eq(200)
+      end
+    end
+  end
 end

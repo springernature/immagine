@@ -7,6 +7,11 @@ branches:
   only:
   - master
 
+addons:
+  apt:
+    packages:
+      - ffmpeg
+
 script:
   - cp config/application.yml.sample config/application.yml
   - bundle exec rspec --format documentation

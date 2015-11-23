@@ -1,6 +1,7 @@
 require 'sinatra/base'
 require 'tilt/erb'
 require 'json'
+require 'fileutils'
 
 module Immagine
   class Service < Sinatra::Base
@@ -59,15 +60,38 @@ module Immagine
 
     # just resizing end-point
     get %r{\A(.+)?/([^/]+)/([^/]+)\z} do |dir, format_code, basename|
-      setup_image_processing(dir, format_code, basename)
-
       source_file = source_file_path(dir, basename)
 
+      setup_image_processing(dir, format_code, basename)
       set_etag_and_cache_headers(dir, format_code, basename, source_file)
-      generate_image(format_code, source_file)
+
+      file_ext   = File.extname(basename)
+      filename   = basename.sub(/#{file_ext}$/, '')
+
+      if VideoProcessor::VIDEO_FORMATS.include?(file_ext)
+        generate_video_screenshot(dir, basename, filename)
+      else
+        generate_image(format_code, source_file)
+      end
     end
 
     private
+
+    def generate_video_screenshot(dir, basename, filename)
+      source_file = source_file_path(dir, basename)
+      begin
+        output_folder = FileUtils.mkpath(File.join(Immagine.settings.lookup('source_folder'), 'tmp', filename))
+        output_file   = File.join(Immagine.settings.lookup('source_folder'), 'tmp', filename, 'screenshot.jpg')
+
+        process_video(source_file, output_file)
+
+        FileUtils.cp output_file, File.join(Immagine.settings.lookup('source_folder'), dir, "#{filename}.jpg")
+
+        source_file = File.join(Immagine.settings.lookup('source_folder'), dir, "#{filename}.jpg")
+      ensure
+        FileUtils.rm_rf(File.join(Immagine.settings.lookup('source_folder'), 'tmp', filename))
+      end
+    end
 
     def setup_image_processing(dir, format_code, basename)
       # FIXME: make it so we don't consider the whitelist in development mode?
@@ -194,12 +218,20 @@ module Immagine
       ImageProcessorDriver.new(image_proc, format_proc, convert_to, quality).process
     end
 
+    def process_video(source_file, output_file)
+      video_processor(source_file).screenshot(output_file)
+    end
+
     def image_processor(path)
       ImageProcessor.new(path)
     end
 
     def format_processor(format)
       FormatProcessor.new(format)
+    end
+
+    def video_processor(path)
+      VideoProcessor.new(path)
     end
 
     def analyse_color(path)
