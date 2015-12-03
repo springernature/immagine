@@ -304,14 +304,14 @@ describe Immagine::Service do
 
     context 'when the source image does not exist' do
       it 'returns a 404' do
-        get "/live/images/#{Immagine.settings.lookup('size_whitelist').sample}/bar.jpg"
+        get "/live/images/#{Immagine.settings.lookup('format_whitelist').sample}/bar.jpg"
         expect(last_response.status).to eq(404)
       end
     end
 
     context 'when everything is correct' do
       it 'returns a 200' do
-        Immagine.settings.lookup('size_whitelist').each do |f|
+        Immagine.settings.lookup('format_whitelist').each do |f|
           get "/live/images/#{f}/matz.jpg"
           expect(last_response.status).to eq(200)
         end
@@ -320,13 +320,13 @@ describe Immagine::Service do
 
     context 'Last-Modified HTTP headers' do
       it 'sets them' do
-        get "/live/images/#{Immagine.settings.lookup('size_whitelist').sample}/kitten.jpg"
+        get "/live/images/#{Immagine.settings.lookup('format_whitelist').sample}/kitten.jpg"
         expect(last_response.header['Last-Modified']).to_not be_nil
       end
     end
 
     context 'ETAGS' do
-      let(:format_code) { Immagine.settings.lookup('size_whitelist').sample }
+      let(:format_code) { Immagine.settings.lookup('format_whitelist').sample }
 
       context 'when the file HAS NOT been modified between requests' do
         it 'should return THE SAME ETAGs' do
@@ -361,7 +361,7 @@ describe Immagine::Service do
     end
 
     context 'Cache-Control' do
-      let(:format_code) { Immagine.settings.lookup('size_whitelist').sample }
+      let(:format_code) { Immagine.settings.lookup('format_whitelist').sample }
 
       context 'when the image requested is NOT a STAGING asset' do
         it 'sets the Cache-Control as PUBLIC' do
@@ -397,7 +397,7 @@ describe Immagine::Service do
     end
 
     context 'Image Quality' do
-      let(:format_code) { Immagine.settings.lookup('size_whitelist').sample }
+      let(:format_code) { Immagine.settings.lookup('format_whitelist').sample }
       let(:img_source)  { '/live/images/kitten.jpg' }
       let(:file_path)   { File.join(Immagine.settings.lookup('source_folder'), img_source) }
 

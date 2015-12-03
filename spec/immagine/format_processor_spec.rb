@@ -4,8 +4,8 @@ describe Immagine::FormatProcessor do
   subject { described_class.new(format) }
 
   describe '#valid?' do
-    context 'The pre-configured size_whitelist' do
-      Immagine.settings.lookup('size_whitelist').each do |code|
+    context 'The pre-configured format_whitelist' do
+      Immagine.settings.lookup('format_whitelist').each do |code|
         describe "#{code}" do
           it { expect(described_class.new(code)).to be_valid }
         end

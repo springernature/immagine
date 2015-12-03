@@ -1,4 +1,4 @@
-size_whitelist:
+format_whitelist:
   - w100h100  # Example cropped thumbnail
   - h125      # At a glance thumbnails
   - w250      # Figure index page thumbnails

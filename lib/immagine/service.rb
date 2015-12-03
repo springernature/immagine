@@ -118,7 +118,7 @@ module Immagine
     end
 
     def check_formatting_code(format_code)
-      return if Immagine.settings.lookup('size_whitelist').include?(format_code) && format_processor(format_code).valid?
+      return if Immagine.settings.lookup('format_whitelist').include?(format_code) && format_processor(format_code).valid?
 
       log_error("404, format code not found (#{format_code}).")
       statsd.increment('asset_format_not_in_whitelist')
