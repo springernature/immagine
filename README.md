@@ -27,13 +27,11 @@ Immagine is a Ruby application, so you need to be comfortable running Ruby appli
 
 **FIXME: make the whitelist optional?**
 
-**FIXME: rename `size_whitelist` to `format_whitelist`**
-
 Immagine is configured via a `config/application.yml` file.  Here is an example config:
 
 ```yaml
 source_folder: ./test-data/src
-size_whitelist:
+format_whitelist:
   - w100h100  # Example cropped thumbnail
   - h125      # At a glance thumbnails
   - w250      # Figure index page thumbnails
