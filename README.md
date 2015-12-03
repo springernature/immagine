@@ -50,7 +50,15 @@ Here's a brief description of the available options:
 
 ## <a name="requesting-images"></a>Requesting Images
 
+### Original (Unmodified) Images
+
+
+
+
+
 **TODO: ADD SOME BLURB ABOUT THE URL STRUCTURE**
+
+**TODO: ADD A LINK TO THE PRESENTATION**
 
 Here's a rundown of the basic formatting options and how they can be passed into Immagine:
 
@@ -89,12 +97,29 @@ Of the above options, `resize_ratio` is the only optional property.  Here are a 
 * `cC-500-100-0.5` - first reduce an image to half it's original size (0.5 `resize_ratio`), then crop it in the center to 500 pixels wide by 100 pixels tall.
 * `cSW-100-100` - Do not resize the image prior to cropping, just crop it to 100x100 pixels in the bottom-left.
 
-**TODO: ADD EXAMPLE IMAGES**
-
 #### <a name="image-blurring"></a>Blurring an Image
 
+Sometimes your images are just too sharp, it's OK, Immagine has your back.  Here's the format string for adding some blur to your images:
+
+```
+b{radius}-{sigma}
+```
+
+* `radius` - \[required\] -
+* `sigma` - \[optional\] -
 
 #### <a name="image-overlay"></a>Overlaying an Image
+
+You can also add a transparent colour overlay to your images with Immagine:
+
+```
+ov{colour}-{opacity}
+```
+
+* `colour` - \[optional\] - the hex code for the colour to use in the overlay (minus the hash - these are NOT allowed in URLs) - i.e. `FFF`. Another acceptable value for this is the string `dominant` (this is the default if the `colour` is omitted) - this tells Immagine to extract the most dominant colour from the image ([read more on this below](#dominant-colour)) and use that as the colour overlay.
+* `opacity` - \[optional\] -
+
+
 
 
 ### <a name="combining-options"></a>Combining Formatting Options
@@ -111,8 +136,13 @@ As you can see, the formatting codes can get quite complex, but you can make the
 
 Both of the conversions above are perfectly valid to Immagine and more readable to the human eye.
 
-### Original (Unmodified) Images
 
+
+
+## Colour Analysis
+
+### <a name="average-colour"></a>Average Colour
+### <a name="dominant-colour"></a>Dominant Colour
 
 
 
