@@ -21,12 +21,6 @@ Immagine is a Ruby application, so you need to be comfortable running Ruby appli
 
 ### Configuration
 
-**FIXME: Can we make this work with ENV variables?**
-
-**FIXME: make it so we don't consider the whitelist in development mode?**
-
-**FIXME: make the whitelist optional?**
-
 Immagine is configured via a `config/application.yml` file.  Here is an example config:
 
 ```yaml
@@ -50,17 +44,35 @@ Here's a brief description of the available options:
 
 ## <a name="requesting-images"></a>Requesting Images
 
-**TODO: ADD SOME BLURB ABOUT THE URL STRUCTURE**
+Immagine removes the need to create multiple resized versions of the same image to suit your design requirements. A single high-resolution image can instead be requested using a custom URL structure, and Immagine will resize & serve the image. Caching is handled by NGINX, and Immagine also manages all the HTTP headers you would expect for assets. 
+
+[A presentation describing the basics of Immagine](https://dl.dropboxusercontent.com/u/239388/Immagine%20Talk/immagine.pdf)
+
+### Original (Unmodified) Images
+
+Unresized images can be requested by users via the URL structure `/{path}/{file_name}`
+
+We recommend serving unresized images via Immagine to ensure:
+
+* consistent URLs for all images across your application
+* consistent cache control (set by Immagine)
+
+### Modified Images
+
+## URL structure
+
+The basic URL structure for serving modified (resized, cropped, blurred, overlaid) images is `/{path}/{format_code}/{file_name}'
 
 Here's a rundown of the basic formatting options and how they can be passed into Immagine:
 
 * `wXXX` - alter an images width. Set this to a pixel value (i.e. `w200`) and the image will have its width reduced to that number of pixels. If the image is already smaller (less-wide) than this setting, the width will not be altered or stretched to fit.
 * `hXXX` - alter an images height. As with the width, set this to a pixel value (i.e. `h200`) and the image will have its height reduced to that number of pixels. If the image is already smaller (less-tall) than this setting, the height will not be altered or stretched to fit.
-* `mXXX` -
-* `rel` -
+* `mXXX` - max. Resize by width or height, whichever is largest
 * `cXX-XXX-XXX-XX` - crop an image. See [Image Cropping](#image-cropping) for full details.
 * `bXX-XX` - blur an image. See [Blurring an Image](#image-blurring) for full details.
 * `ovXXX-XX` - overlay an image with a transparent color. See [Overlaying an Image](#image-overlay) for full details.
+
+The formatting options can be combined, when they do not conflict. See [Combining Options](#combining-options)
 
 #### <a name="image-cropping"></a>Image Cropping
 
@@ -89,33 +101,61 @@ Of the above options, `resize_ratio` is the only optional property.  Here are a 
 * `cC-500-100-0.5` - first reduce an image to half it's original size (0.5 `resize_ratio`), then crop it in the center to 500 pixels wide by 100 pixels tall.
 * `cSW-100-100` - Do not resize the image prior to cropping, just crop it to 100x100 pixels in the bottom-left.
 
-**TODO: ADD EXAMPLE IMAGES**
-
 #### <a name="image-blurring"></a>Blurring an Image
 
+Sometimes your images are just too sharp, it's OK, Immagine has your back.  Here's the format string for adding some blur to your images:
+
+```
+b{radius}-{sigma}
+```
+
+* `radius` - \[required\] -
+* `sigma` - \[optional\] -
 
 #### <a name="image-overlay"></a>Overlaying an Image
+
+You can also add a transparent colour overlay to your images with Immagine:
+
+```
+ov{colour}-{opacity}
+```
+
+* `colour` - \[optional\] - the hex code for the colour to use in the overlay (minus the hash - these are NOT allowed in URLs) - i.e. `FFF`. Another acceptable value for this is the string `dominant` (this is the default if the `colour` is omitted) - this tells Immagine to extract the most dominant colour from the image ([read more on this below](#dominant-colour)) and use that as the colour overlay.
+* `opacity` - \[optional\] -
 
 
 ### <a name="combining-options"></a>Combining Formatting Options
 
-The above options can (when they don't conflict) be combined in various ways, here are some examples:
+The above options can be combined in various ways, with the exception of the resizing options which cannot *all* be combined with each other.
 
-* `w800h200` - resize an image to 800 pixels wide and 200 pixels high.
+Valid combinations might be:
 
-**TODO: MOAR EXAMPLES**
+* b2m100 - blur and resize by max
+* w1000cW-100-100-0.5 - resize by width and crop
+* ovb1.1-11cNW-100-100 - overlay and crop
+* w100h200 - resize by width and resize by height
+
+**Invalid** combinations might be:
+
+* m100h100 - resize by max and resize by height
+* cNW-100 - crop (without all required parameters - see [Image Cropping](#image-cropping))
+* m100w100 - resize by max and resize by width
 
 As you can see, the formatting codes can get quite complex, but you can make them a little more readable if you use a sensible delimiter - i.e. an underscore.
 
-**TODO: EXAMPLES**
+## Colour Analysis
 
-Both of the conversions above are perfectly valid to Immagine and more readable to the human eye.
+To analyse the colour in an image, use the following URL structure: `/analyse/{path}/{file_name}`
 
-### Original (Unmodified) Images
+### <a name="average-colour"></a>Average Colour
 
+To find the average colour of an image, Immagine first shrinks the image to 1x1px in size, and extracts the colour from this pixel.
 
+### <a name="dominant-colour"></a>Dominant Colour
 
+To find the dominant colour of an image, Immagine first shrinks the image to 300x300px, then counts the top 10 most used colours in this image. The 10 colours are ranked in order of most used. The first colour which has a lightness of less than 0.7 is picked as the dominant colour (or, if none of the colours have a lightness less than 0.7, the most common colour is picked). 
 
+The lightness factor is used to ensure that an image which consists of coloured artefacts on a white background does not return white as the most common colour.
 
 ## Contributing
 
