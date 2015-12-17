@@ -10,16 +10,15 @@ gem 'puma'
 gem 'macmillan-utils'
 gem 'newrelic_rpm'
 gem 'memoizable'
+gem 'dotenv'
 
 group :development do
   gem 'shotgun'
   gem 'pry'
   gem 'foreman'
-  gem 'dotenv'
 end
 
 group :test do
   gem 'rspec'
   gem 'rack-test'
-  gem 'dotenv'
 end
