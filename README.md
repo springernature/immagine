@@ -98,7 +98,7 @@ c{gravity}-{width}-{height}-{resize_ratio}
 
 Of the above options, `resize_ratio` is the only optional property.  Here are a couple of examples to show you how cropping can be used:
 
-* `cC-500-100-0.5` - first reduce an image to half it's original size (0.5 `resize_ratio`), then crop it in the center to 500 pixels wide by 100 pixels tall.
+* `cC-500-100-0.5` - first reduce an image to half its original size (0.5 `resize_ratio`), then crop it in the center to 500 pixels wide by 100 pixels tall.
 * `cSW-100-100` - Do not resize the image prior to cropping, just crop it to 100x100 pixels in the bottom-left.
 
 #### <a name="image-blurring"></a>Blurring an Image
@@ -109,8 +109,8 @@ Sometimes your images are just too sharp, it's OK, Immagine has your back.  Here
 b{radius}-{sigma}
 ```
 
-* `radius` - \[required\] -
-* `sigma` - \[optional\] -
+* `radius` - \[required\]
+* `sigma` - \[optional\]
 
 #### <a name="image-overlay"></a>Overlaying an Image
 
@@ -130,16 +130,16 @@ The above options can be combined in various ways, with the exception of the res
 
 Valid combinations might be:
 
-* b2m100 - blur and resize by max
-* w1000cW-100-100-0.5 - resize by width and crop
-* ovb1.1-11cNW-100-100 - overlay and crop
-* w100h200 - resize by width and resize by height
+* `b2m100` - blur and resize by max
+* `w1000cW-100-100-0.5` - resize by width and crop
+* `ovb1.1-11cNW-100-100` - overlay and crop
+* `w100h200` - resize by width and resize by height
 
 **Invalid** combinations might be:
 
-* m100h100 - resize by max and resize by height
-* cNW-100 - crop (without all required parameters - see [Image Cropping](#image-cropping))
-* m100w100 - resize by max and resize by width
+* `m100h100` - resize by max and resize by height
+* `cNW-100` - crop (without all required parameters - see [Image Cropping](#image-cropping))
+* `m100w100` - resize by max and resize by width
 
 As you can see, the formatting codes can get quite complex, but you can make them a little more readable if you use a sensible delimiter - i.e. an underscore.
 
