@@ -15,7 +15,7 @@ Immagine is a Ruby application, so you need to be comfortable running Ruby appli
 
 * Ruby - see [.ruby-version] for the version currently targeted.
 * [Imagemagick] - Immagine uses imagemagick to do all the hard work with the images.  You'll need at least version 2.7+ to take full advantage of all of Immagines' capabilities.
-* [FFMpeg] - ffmpeg is required to take screenshots from videos (mov flv mp4 avi mpg and wmv are currently supported)
+* [FFMpeg](https://www.ffmpeg.org/) - ffmpeg is required to take screenshots from videos (mov flv mp4 avi mpg and wmv are currently supported)
 * A rack application server - again, we recommend [puma].
 * A proxying web server - again, we recommend [NGINX].
 
