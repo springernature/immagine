@@ -6,6 +6,9 @@ require 'streamio-ffmpeg'
 require 'statsd-ruby'
 require 'macmillan/utils'
 require 'memoizable'
+require 'dotenv'
+
+Dotenv.load
 
 module Immagine
   class << self
@@ -29,18 +32,11 @@ module Immagine
       @statsd ||= begin
         environment      = ENV['RACK_ENV'] || 'development'
         statsd           = Statsd.new(settings.lookup('statsd_host'), settings.lookup('statsd_port'))
-        statsd.namespace = statsd_namespace
+        statsd.namespace = Statsd.new(settings.lookup('statsd_namespace'))
         Macmillan::Utils::StatsdDecorator.new(statsd, environment, logger)
       end
     end
     attr_writer :statsd
-
-    def statsd_namespace
-      hostname = `hostname`.chomp.downcase.gsub('.nature.com', '')
-      tier     = hostname =~ /test/ ? 'test' : 'live'
-
-      "image-server.#{tier}.#{hostname}"
-    end
   end
 end
 
