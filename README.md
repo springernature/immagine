@@ -5,7 +5,7 @@ Immagine is the image manipulation service for [nature.com](http://nature.com).
 [![Build status][shield-build]][info-build]
 [![GPLv3 licensed][shield-license]][info-license]
 
-## Running a Immagine Server
+## Running an Immagine Server
 
 Immagine is a Ruby application, so you need to be comfortable running Ruby applications in your infrastructure.  It should work with any rack compatible web server, but we run it with and recommend [puma] proxied behind [NGINX] configured with a file based cache (see the example [nginx.conf]) for pretty acceptable results.
 
