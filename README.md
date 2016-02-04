@@ -59,7 +59,7 @@ We recommend serving unresized images via Immagine to ensure:
 
 ## URL structure
 
-The basic URL structure for serving modified (resized, cropped, blurred, overlaid) images is `/{path}/{format_code}/{file_name}'
+The basic URL structure for serving modified (resized, cropped, blurred, overlaid) images is `/{path}/{format_code}/{file_name}`
 
 Here's a rundown of the basic formatting options and how they can be passed into Immagine:
 
@@ -157,11 +157,9 @@ The lightness factor is used to ensure that an image which consists of coloured 
 
 ## Contributing
 
-
-
     bundle
     cp config/application.yml.sample config/application.yml
-    rake # it runs specs and features
+    bundle exec rake
     foreman start
 
 Go to:
