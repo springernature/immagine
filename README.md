@@ -7,9 +7,7 @@ Immagine is the image manipulation service for [nature.com](http://nature.com).
 
 ## Running an Immagine Server
 
-Immagine is a Ruby application, so you need to be comfortable running Ruby applications in your infrastructure.  It should work with any rack compatible web server, but we run it with and recommend [puma] proxied behind [NGINX] configured with a file based cache (see the example [nginx.conf]) for pretty acceptable results.
-
-**TODO: ADD AN EXAMPLE NGINX CONFIG**
+Immagine is a Ruby application, so you need to be comfortable running Ruby applications in your infrastructure.  It should work with any rack compatible web server, but we run it with and recommend [puma] proxied behind [NGINX] configured with a file based cache (see the example [nginx.conf](nginx.conf)) for pretty acceptable results.
 
 ### Dependencies
 
@@ -44,7 +42,7 @@ Here's a brief description of the available options:
 
 ## <a name="requesting-images"></a>Requesting Images
 
-Immagine removes the need to create multiple resized versions of the same image to suit your design requirements. A single high-resolution image can instead be requested using a custom URL structure, and Immagine will resize & serve the image. Caching is handled by NGINX, and Immagine also manages all the HTTP headers you would expect for assets. 
+Immagine removes the need to create multiple resized versions of the same image to suit your design requirements. A single high-resolution image can instead be requested using a custom URL structure, and Immagine will resize & serve the image. Caching is handled by NGINX, and Immagine also manages all the HTTP headers you would expect for assets.
 
 [A presentation describing the basics of Immagine](https://dl.dropboxusercontent.com/u/239388/Immagine%20Talk/immagine.pdf)
 
@@ -153,7 +151,7 @@ To find the average colour of an image, Immagine first shrinks the image to 1x1p
 
 ### <a name="dominant-colour"></a>Dominant Colour
 
-To find the dominant colour of an image, Immagine first shrinks the image to 300x300px, then counts the top 10 most used colours in this image. The 10 colours are ranked in order of most used. The first colour which has a lightness of less than 0.7 is picked as the dominant colour (or, if none of the colours have a lightness less than 0.7, the most common colour is picked). 
+To find the dominant colour of an image, Immagine first shrinks the image to 300x300px, then counts the top 10 most used colours in this image. The 10 colours are ranked in order of most used. The first colour which has a lightness of less than 0.7 is picked as the dominant colour (or, if none of the colours have a lightness less than 0.7, the most common colour is picked).
 
 The lightness factor is used to ensure that an image which consists of coloured artefacts on a white background does not return white as the most common colour.
 
@@ -172,7 +170,7 @@ Go to:
 
 ## Licence
 
-[&copy; 2015, Macmillan Publishers](LICENSE.txt).
+[&copy; 2015, Macmillan Publishers](LICENSE).
 
 Immagine is licensed under the [GNU General Public License 3.0][gpl].
 
