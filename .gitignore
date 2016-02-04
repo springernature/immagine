@@ -1,5 +1,6 @@
 .DS_Store
 config/application.yml
 test-data/target/
+test-data/src/live/videos/cat-vs-food.jpg
 artifacts
 log
