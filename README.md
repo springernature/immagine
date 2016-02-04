@@ -170,7 +170,7 @@ Go to:
 
 ## Licence
 
-[&copy; 2015, Macmillan Publishers](LICENSE.txt).
+[&copy; 2015, Macmillan Publishers](LICENSE).
 
 Immagine is licensed under the [GNU General Public License 3.0][gpl].
 
