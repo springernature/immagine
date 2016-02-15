@@ -47,14 +47,16 @@ module Immagine
         image_processor.convert_format!(conversion_format)
       end
 
-      img = image_processor.img
+      img         = image_processor.img
+      img_quality = quality
 
       img.strip!
 
       blob = img.to_blob do
-        self.quality   = quality
+        self.quality   = img_quality
         self.interlace = (img.columns * img.rows <= 100 * 100) ? Magick::NoInterlace : Magick::PlaneInterlace
       end
+
       mime = img.mime_type
 
       [blob, mime]
