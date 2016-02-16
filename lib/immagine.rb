@@ -5,6 +5,7 @@ require 'RMagick'
 require 'streamio-ffmpeg'
 require 'statsd-ruby'
 require 'macmillan/utils'
+require 'macmillan/utils/statsd_stub'
 require 'memoizable'
 require 'dotenv'
 
@@ -35,6 +36,8 @@ module Immagine
         statsd.namespace = Statsd.new(settings.lookup('statsd_namespace'))
         Macmillan::Utils::StatsdDecorator.new(statsd, environment, logger)
       end
+    rescue Macmillan::Utils::Settings::KeyNotFoundError
+      @statsd = Macmillan::Utils::StatsdStub.new
     end
     attr_writer :statsd
   end

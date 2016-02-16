@@ -40,6 +40,7 @@ Here's a brief description of the available options:
 * `format_whitelist` - \[optional\] - a list of allowable image manipulation options (see [Requesting Images](#requesting-images) for further details), if a request comes through with a format that is not on this list, Immagine will respond with a not found response (404).  This is used to limit potential abuse of the system - i.e. automated requests for images with random processing options that could lead to a DOS situation.
 * `statsd_host` - \[optional\] - the address of your statsd server (if you use statsd) for performance/usage metrics.
 * `statsd_port` - \[optional\] - the port that your statsd server listens on.
+* `statsd_namespace` - \[optional\] - a prefix for all of the immagine stats to go under.
 
 ## <a name="requesting-images"></a>Requesting Images
 

@@ -5,7 +5,7 @@ Metrics/LineLength:
 Style/Documentation:
   Enabled: false
 
-Style/SingleSpaceBeforeFirstArg:
+Style/SpaceBeforeFirstArg:
   Enabled: false
 
 Style/BracesAroundHashParameters:

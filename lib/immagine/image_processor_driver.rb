@@ -43,9 +43,7 @@ module Immagine
       image_processor.blur!(format_processor.blur_radius, format_processor.blur_sigma) if format_processor.blur?
 
       # CONVERT
-      if conversion_format
-        image_processor.convert_format!(conversion_format)
-      end
+      image_processor.convert_format!(conversion_format) if conversion_format
 
       img         = image_processor.img
       img_quality = quality

@@ -7,14 +7,14 @@ module Immagine
   class Service < Sinatra::Base
     DEFAULT_IMAGE_QUALITY = 85
     DEFAULT_EXPIRES       = 30 * 24 * 60 * 60 # 30 days in seconds
-    ALLOWED_CONVERSION_FORMATS = %w(jpg png)
+    ALLOWED_CONVERSION_FORMATS = %w(jpg png).freeze
 
     configure do
       set :root, File.join(File.dirname(__FILE__), 'service')
     end
 
     before do
-      http_headers = request.env.dup.select { |key, _val| key =~ /\AHTTP_/ }
+      http_headers = request.env.dup.select { |key, _val| key.start_with?('HTTP_') }
       http_headers.delete('HTTP_COOKIE')
     end
 
@@ -23,7 +23,7 @@ module Immagine
     end
 
     get '/analyse-test' do
-      image_dir = File.join(Immagine.settings.lookup('source_folder'), '..', 'analyse-test')
+      image_dir = File.join(source_folder, '..', 'analyse-test')
 
       Dir.chdir(image_dir) do
         @images = Dir.glob('*').map do |source|
@@ -35,7 +35,7 @@ module Immagine
     end
 
     get %r{\A/analyse/(.+)\z} do |path|
-      source = File.join(Immagine.settings.lookup('source_folder'), path)
+      source = File.join(source_folder, path)
       not_found unless File.exist?(source)
 
       etag(calculate_etags('wibble', 'wobble', source, source))
@@ -77,19 +77,24 @@ module Immagine
 
     private
 
+    def source_folder
+      Immagine.settings.lookup('source_folder')
+    end
+
     def generate_video_screenshot(dir, basename, filename)
       source_file = source_file_path(dir, basename)
       begin
-        output_folder = FileUtils.mkpath(File.join(Immagine.settings.lookup('source_folder'), 'tmp', filename))
-        output_file   = File.join(Immagine.settings.lookup('source_folder'), 'tmp', filename, 'screenshot.jpg')
+        FileUtils.mkpath(File.join(source_folder, 'tmp', filename))
+
+        output_file = File.join(source_folder, 'tmp', filename, 'screenshot.jpg')
 
         process_video(source_file, output_file)
 
-        FileUtils.cp output_file, File.join(Immagine.settings.lookup('source_folder'), dir, "#{filename}.jpg")
+        FileUtils.cp(output_file, File.join(source_folder, dir, "#{filename}.jpg"))
 
-        source_file = File.join(Immagine.settings.lookup('source_folder'), dir, "#{filename}.jpg")
+        source_file = File.join(source_folder, dir, "#{filename}.jpg")
       ensure
-        FileUtils.rm_rf(File.join(Immagine.settings.lookup('source_folder'), 'tmp', filename))
+        FileUtils.rm_rf(File.join(source_folder, 'tmp', filename))
       end
     end
 
@@ -106,7 +111,7 @@ module Immagine
     end
 
     def source_file_path(dir, basename)
-      File.join(Immagine.settings.lookup('source_folder'), String(dir), String(basename))
+      File.join(source_folder, String(dir), String(basename))
     end
 
     def check_directory_exists(dir)
@@ -114,7 +119,7 @@ module Immagine
 
       log_error('404, incorrect path, dir not extracted.')
       statsd.increment('dir_not_extracted')
-      fail Sinatra::NotFound
+      raise Sinatra::NotFound
     end
 
     def check_formatting_code(format_code)
@@ -122,7 +127,7 @@ module Immagine
 
       log_error("404, format code not found (#{format_code}).")
       statsd.increment('asset_format_not_in_whitelist')
-      fail Sinatra::NotFound
+      raise Sinatra::NotFound
     end
 
     def check_conversion_format(format)
@@ -130,7 +135,7 @@ module Immagine
 
       log_error("404, conversion format not found (#{format}).")
       statsd.increment('conversion_format_not_in_whitelist')
-      fail Sinatra::NotFound
+      raise Sinatra::NotFound
     end
 
     def check_source_file_exists(source_file)
@@ -138,11 +143,11 @@ module Immagine
 
       log_error("404, original file not found (#{source_file}).")
       statsd.increment('asset_not_found')
-      fail Sinatra::NotFound
+      raise Sinatra::NotFound
     end
 
     def check_for_and_send_static_file(dir, format_code, basename)
-      static_file = File.join(Immagine.settings.lookup('source_folder'), dir, format_code, basename)
+      static_file = File.join(source_folder, dir, format_code, basename)
 
       return unless File.exist?(static_file)
 
@@ -158,8 +163,8 @@ module Immagine
       set_cache_control_headers(request, dir)
     end
 
-    def set_cache_control_headers(request, dir)
-      if dir.match(%r{\A/staging})
+    def set_cache_control_headers(_request, dir)
+      if dir =~ %r{\A/staging}
         # FIXME: make this configurable - i.e. the /staging path being treated special like...
         cache_control(:private, :no_store, max_age: 0)
       else
@@ -213,7 +218,7 @@ module Immagine
       image_proc  = image_processor(path)
       format_proc = format_processor(format)
 
-      fail "Unsupported format: '#{format}'" unless format_proc.valid?
+      raise "Unsupported format: '#{format}'" unless format_proc.valid?
 
       ImageProcessorDriver.new(image_proc, format_proc, convert_to, quality).process
     end

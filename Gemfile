@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
 gem 'rake'
-gem 'rmagick', '~> 2.13.2', require: 'RMagick'
+gem 'rmagick', '~> 2.13', require: 'RMagick'
 gem 'streamio-ffmpeg', '~> 1.0'
 gem 'sinatra'
 gem 'statsd-ruby'

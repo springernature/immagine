@@ -202,7 +202,7 @@ describe Immagine::Service do
       context 'stale cache revalidation' do
         context 'images cached for a year or more' do
           it 'sets Stale-While-Revalidate and Stale-If-Error for a month' do
-            stub_const('Immagine::Service::DEFAULT_EXPIRES', 31536000)
+            stub_const('Immagine::Service::DEFAULT_EXPIRES', 31_536_000)
 
             get '/live/images/kitten.jpg'
 
@@ -214,7 +214,7 @@ describe Immagine::Service do
 
         context 'images cached for a month or more' do
           it 'sets Stale-While-Revalidate and Stale-If-Error for a week' do
-            stub_const('Immagine::Service::DEFAULT_EXPIRES', 2628000)
+            stub_const('Immagine::Service::DEFAULT_EXPIRES', 2_628_000)
 
             get '/live/images/kitten.jpg'
 
@@ -226,7 +226,7 @@ describe Immagine::Service do
 
         context 'images cached for a week or more' do
           it 'sets Stale-While-Revalidate and Stale-If-Error for an hour' do
-            stub_const('Immagine::Service::DEFAULT_EXPIRES', 86400)
+            stub_const('Immagine::Service::DEFAULT_EXPIRES', 86_400)
 
             get '/live/images/kitten.jpg'
 
