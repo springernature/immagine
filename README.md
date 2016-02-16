@@ -172,19 +172,19 @@ Go to:
 
 ## Licence
 
-[&copy; 2015, Macmillan Publishers](LICENSE).
+[&copy; 2015, Springer Nature](LICENSE).
 
 Immagine is licensed under the [GNU General Public License 3.0][gpl].
 
 [puma]: http://puma.io
 [nginx]: http://nginx.org/
-[.ruby-version]: https://github.com/nature/immagine/blob/master/.ruby-version
-[contributing]: https://github.com/nature/immagine/blob/master/CONTRIBUTING.md
+[.ruby-version]: https://github.com/springernature/immagine/blob/master/.ruby-version
+[contributing]: https://github.com/springernature/immagine/blob/master/CONTRIBUTING.md
 [imagemagick]: http://www.imagemagick.org/
 [gpl]: http://www.gnu.org/licenses/gpl-3.0.html
 [info-license]: LICENSE
-[info-build]: https://travis-ci.org/nature/immagine
-[info-dependencies]: https://gemnasium.com/nature/immagine
+[info-build]: https://travis-ci.org/springernature/immagine
+[info-dependencies]: https://gemnasium.com/springernature/immagine
 [shield-license]: https://img.shields.io/badge/license-GPLv3-blue.svg
-[shield-build]: https://img.shields.io/travis/nature/immagine/master.svg
-[shield-dependencies]: https://img.shields.io/gemnasium/nature/immagine.svg
+[shield-build]: https://img.shields.io/travis/springernature/immagine/master.svg
+[shield-dependencies]: https://img.shields.io/gemnasium/springernature/immagine.svg
