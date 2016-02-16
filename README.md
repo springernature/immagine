@@ -3,6 +3,7 @@
 Immagine is the image manipulation service for [nature.com](http://nature.com).
 
 [![Build status][shield-build]][info-build]
+[![Dependencies][shield-dependencies]][info-dependencies]
 [![GPLv3 licensed][shield-license]][info-license]
 
 ## Running an Immagine Server
@@ -155,9 +156,11 @@ To find the dominant colour of an image, Immagine first shrinks the image to 300
 
 The lightness factor is used to ensure that an image which consists of coloured artefacts on a white background does not return white as the most common colour.
 
-## Contributing
+## Getting Started and Contributing
 
-    bundle
+Please read the [contributing guidelines][contributing] first, then run the following commands to quickly get setup:
+
+    bundle install
     cp config/application.yml.sample config/application.yml
     bundle exec rake
     foreman start
@@ -175,9 +178,12 @@ Immagine is licensed under the [GNU General Public License 3.0][gpl].
 [puma]: http://puma.io
 [nginx]: http://nginx.org/
 [.ruby-version]: https://github.com/nature/immagine/blob/master/.ruby-version
+[contributing]: https://github.com/nature/immagine/blob/master/CONTRIBUTING.md
 [imagemagick]: http://www.imagemagick.org/
 [gpl]: http://www.gnu.org/licenses/gpl-3.0.html
 [info-license]: LICENSE
 [info-build]: https://travis-ci.org/nature/immagine
+[info-dependencies]: https://gemnasium.com/nature/immagine
 [shield-license]: https://img.shields.io/badge/license-GPLv3-blue.svg
 [shield-build]: https://img.shields.io/travis/nature/immagine/master.svg
+[shield-dependencies]: https://img.shields.io/gemnasium/nature/immagine.svg
