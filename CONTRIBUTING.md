@@ -8,6 +8,6 @@
 * New features or changes to existing features must be documented in the [readme] file.
 * Feel free to [open an issue][newissue] first, if the change is one that you think needs some discussion.
 
-[readme]: https://github.com/nature/immagine/blob/master/README.md
-[newissue]: https://github.com/nature/immagine/issues/new
-[issues]: https://github.com/nature/immagine/issues
+[readme]: https://github.com/springernature/immagine/blob/master/README.md
+[newissue]: https://github.com/springernature/immagine/issues/new
+[issues]: https://github.com/springernature/immagine/issues
