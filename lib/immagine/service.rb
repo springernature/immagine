@@ -23,7 +23,7 @@ module Immagine
     end
 
     get '/analyse-test' do
-      image_dir = File.join(Immagine.settings.lookup('source_folder'), '..', 'analyse-test')
+      image_dir = File.join(source_folder, '..', 'analyse-test')
 
       Dir.chdir(image_dir) do
         @images = Dir.glob('*').map do |source|
@@ -35,7 +35,7 @@ module Immagine
     end
 
     get %r{\A/analyse/(.+)\z} do |path|
-      source = File.join(Immagine.settings.lookup('source_folder'), path)
+      source = File.join(source_folder, path)
       not_found unless File.exist?(source)
 
       etag(calculate_etags('wibble', 'wobble', source, source))
@@ -77,19 +77,24 @@ module Immagine
 
     private
 
+    def source_folder
+      Immagine.settings.lookup('source_folder')
+    end
+
     def generate_video_screenshot(dir, basename, filename)
       source_file = source_file_path(dir, basename)
       begin
-        output_folder = FileUtils.mkpath(File.join(Immagine.settings.lookup('source_folder'), 'tmp', filename))
-        output_file   = File.join(Immagine.settings.lookup('source_folder'), 'tmp', filename, 'screenshot.jpg')
+        FileUtils.mkpath(File.join(source_folder, 'tmp', filename))
+
+        output_file = File.join(source_folder, 'tmp', filename, 'screenshot.jpg')
 
         process_video(source_file, output_file)
 
-        FileUtils.cp output_file, File.join(Immagine.settings.lookup('source_folder'), dir, "#{filename}.jpg")
+        FileUtils.cp(output_file, File.join(source_folder, dir, "#{filename}.jpg"))
 
-        source_file = File.join(Immagine.settings.lookup('source_folder'), dir, "#{filename}.jpg")
+        source_file = File.join(source_folder, dir, "#{filename}.jpg")
       ensure
-        FileUtils.rm_rf(File.join(Immagine.settings.lookup('source_folder'), 'tmp', filename))
+        FileUtils.rm_rf(File.join(source_folder, 'tmp', filename))
       end
     end
 
@@ -106,7 +111,7 @@ module Immagine
     end
 
     def source_file_path(dir, basename)
-      File.join(Immagine.settings.lookup('source_folder'), String(dir), String(basename))
+      File.join(source_folder, String(dir), String(basename))
     end
 
     def check_directory_exists(dir)
@@ -142,7 +147,7 @@ module Immagine
     end
 
     def check_for_and_send_static_file(dir, format_code, basename)
-      static_file = File.join(Immagine.settings.lookup('source_folder'), dir, format_code, basename)
+      static_file = File.join(source_folder, dir, format_code, basename)
 
       return unless File.exist?(static_file)
 
