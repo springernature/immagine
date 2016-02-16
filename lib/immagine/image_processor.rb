@@ -5,15 +5,15 @@ module Immagine
     SUPPORTED_CONVERSION_FORMATS = {
       jpg: 'JPEG',
       png: 'PNG'
-    }
+    }.freeze
 
     attr_reader :img
 
     def initialize(source)
       @img = Magick::Image.read(source).first
 
-      fail ProcessingError, "The width of the image #{source} is 0" if img.columns == 0
-      fail ProcessingError, "The height of the image #{source} is 0" if img.rows == 0
+      raise ProcessingError, "The width of the image #{source} is 0" if img.columns == 0
+      raise ProcessingError, "The height of the image #{source} is 0" if img.rows == 0
     end
 
     def destroy!
@@ -83,7 +83,7 @@ module Immagine
              when 'SE' then Magick::SouthEastGravity
              when 'SW' then Magick::SouthWestGravity
              else
-               fail ProcessingError, "Unsupported gravity argument '#{gravity}'"
+               raise ProcessingError, "Unsupported gravity argument '#{gravity}'"
              end
 
       img.crop!(grav, width, height)
@@ -141,7 +141,7 @@ module Immagine
     end
 
     def convert_format!(format)
-      fail ProcessingError, "Unsupported format '#{format}'" unless SUPPORTED_CONVERSION_FORMATS.keys.include?(format)
+      raise ProcessingError, "Unsupported format '#{format}'" unless SUPPORTED_CONVERSION_FORMATS.keys.include?(format)
       img.format = SUPPORTED_CONVERSION_FORMATS[format]
     end
 

@@ -2,7 +2,7 @@ module Immagine
   class VideoProcessor
     attr_reader :video
 
-    VIDEO_FORMATS = %w(.mov .flv .mp4 .avi .mpg .wmv)
+    VIDEO_FORMATS = %w(.mov .flv .mp4 .avi .mpg .wmv).freeze
 
     def initialize(source)
       @video = FFMPEG::Movie.new(source)
@@ -20,7 +20,7 @@ module Immagine
     # FIXME: make second configurable somehow
     def second
       duration = video.duration
-      second = if duration > 10
+      if duration > 10
         10
       else
         (duration / 3).floor

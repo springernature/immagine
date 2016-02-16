@@ -6,7 +6,7 @@ describe Immagine::FormatProcessor do
   describe '#valid?' do
     context 'The pre-configured format_whitelist' do
       Immagine.settings.lookup('format_whitelist').each do |code|
-        describe "#{code}" do
+        describe code.to_s do
           it { expect(described_class.new(code)).to be_valid }
         end
       end
@@ -39,7 +39,7 @@ describe Immagine::FormatProcessor do
         ovcNW-100-100
         ovb1.1-11cNW-100-100
       ).each do |code|
-        describe "#{code}" do
+        describe code.to_s do
           it { expect(described_class.new(code)).to be_valid }
         end
       end
@@ -54,7 +54,7 @@ describe Immagine::FormatProcessor do
         m100h100
         m100w100
       ).each do |code|
-        describe "#{code}" do
+        describe code.to_s do
           it { expect(described_class.new(code)).to_not be_valid }
         end
       end

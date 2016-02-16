@@ -14,7 +14,7 @@ module Immagine
       crop:     /c([A-Z]{1,2})-([\d]+)-([\d]+)-?([\d\.]+)?/,
       blur:     /b([\d\.]+)-?([\d\.]+)?/,
       overlay:  /ov([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|dominant)?-?(\d{1,2})?/
-    }
+    }.freeze
 
     def initialize(format_string)
       @format_string = format_string
