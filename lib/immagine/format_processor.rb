@@ -4,8 +4,6 @@ module Immagine
 
     attr_reader :format_string
 
-    # TODO: make quality part of this option
-
     REGEX = {
       height:   /h(\d+)/,
       width:    /w(\d+)/,
@@ -13,7 +11,8 @@ module Immagine
       relative: /rel/,
       crop:     /c([A-Z]{1,2})-([\d]+)-([\d]+)-?([\d\.]+)?/,
       blur:     /b([\d\.]+)-?([\d\.]+)?/,
-      overlay:  /ov([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|dominant)?-?(\d{1,2})?/
+      overlay:  /ov([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|dominant)?-?(\d{1,2})?/,
+      quality:  /q(\d+)/
     }.freeze
 
     def initialize(format_string)
@@ -98,6 +97,10 @@ module Immagine
       match.to_i if match
     end
 
+    memoize def quality
+      extract_first_integer(:quality)
+    end
+
     private
 
     def valid_for_relative?
@@ -109,7 +112,7 @@ module Immagine
     end
 
     def valid_for_else?
-      height || width || crop? || blur? || overlay?
+      height || width || crop? || blur? || overlay? || quality
     end
 
     def extract_first_integer(regex_key)
