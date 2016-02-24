@@ -295,10 +295,35 @@ describe Immagine::Service do
       end
     end
 
-    context 'when the format code is not in the whitelist' do
-      it 'returns a 404' do
-        get '/live/images/wrong_format/matz.jpg'
-        expect(last_response.status).to eq(404)
+    context 'when a "format_whitelist" HAS been specified' do
+      context 'and the requested format code IS in the whitelist' do
+        it 'returns the image (200)' do
+          get "/live/images/#{Immagine.format_whitelist.sample}/matz.jpg"
+          expect(last_response.status).to eq(200)
+        end
+      end
+
+      context 'and the requested format code IS NOT in the whitelist' do
+        it 'returns a 404' do
+          get '/live/images/wrong_format/matz.jpg'
+          expect(last_response.status).to eq(404)
+        end
+      end
+    end
+
+    context 'when a "format_whitelist" HAS NOT been specified' do
+      context 'as the requested format code IS valid' do
+        it 'returns the image (200)' do
+          get '/live/images/w200h200/matz.jpg'
+          expect(last_response.status).to eq(200)
+        end
+      end
+
+      context 'as the requested format code IS NOT valid' do
+        it 'returns a 404' do
+          get '/live/images/m100h100/matz.jpg'
+          expect(last_response.status).to eq(404)
+        end
       end
     end
 

@@ -37,9 +37,20 @@ module Immagine
         Macmillan::Utils::StatsdDecorator.new(statsd, environment, logger)
       end
     rescue Macmillan::Utils::Settings::KeyNotFoundError
-      @statsd = Macmillan::Utils::StatsdStub.new
+      @statsd ||= Macmillan::Utils::StatsdStub.new
     end
     attr_writer :statsd
+
+    def format_whitelist
+      @format_whitelist ||= settings.lookup('format_whitelist')
+    rescue Macmillan::Utils::Settings::KeyNotFoundError
+      @format_whitelist ||= []
+    end
+    attr_writer :format_whitelist
+
+    def use_format_whitelist?
+      settings.lookup('')
+    end
   end
 end
 
