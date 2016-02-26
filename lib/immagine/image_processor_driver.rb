@@ -8,6 +8,8 @@ module Immagine
       @conversion_format = conversion_format
     end
 
+    DEFAULT_QUALITY = 85
+
     def process
       # OVERLAY
       image_processor.overlay!(format_processor.overlay_color, format_processor.overlay_opacity) if format_processor.overlay?
@@ -45,7 +47,7 @@ module Immagine
       image_processor.convert_format!(conversion_format) if conversion_format
 
       # QUALITY
-      img_quality = format_processor.quality || 85
+      img_quality = format_processor.quality || DEFAULT_QUALITY
 
       img = image_processor.img
       img.strip!
