@@ -45,7 +45,7 @@ module Immagine
       image_processor.convert_format!(conversion_format) if conversion_format
 
       # QUALITY
-      img_quality = format_processor.quality.to_i || 85
+      img_quality = format_processor.quality || 85
 
       img = image_processor.img
       img.strip!
