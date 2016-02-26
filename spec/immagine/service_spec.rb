@@ -423,7 +423,7 @@ describe Immagine::Service do
         file_types.each do |to_format|
           it "converts to #{to_format}" do
             expect(Immagine::ImageProcessorDriver).to receive(:new).with(
-              anything, anything, to_format.downcase.to_sym, anything
+              anything, anything, to_format.downcase.to_sym
             ).and_return(driver)
 
             get "/live/images/w100h100/kitten.jpg/convert/kitten.#{to_format}"
