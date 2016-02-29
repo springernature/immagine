@@ -396,41 +396,6 @@ describe Immagine::Service do
       end
     end
 
-    context 'Image Quality' do
-      let(:format_code) { Immagine.settings.lookup('format_whitelist').sample }
-      let(:img_source)  { '/live/images/kitten.jpg' }
-      let(:file_path)   { File.join(Immagine.settings.lookup('source_folder'), img_source) }
-
-      context 'no custom headers' do
-        it 'uses the default image quality setting' do
-          expect_any_instance_of(Immagine::Service)
-            .to receive(:process_image)
-            .with(file_path, format_code, Immagine::Service::DEFAULT_IMAGE_QUALITY, nil)
-            .and_call_original
-
-          get "/live/images/#{format_code}/kitten.jpg"
-
-          expect(last_response).to be_ok
-        end
-      end
-
-      context 'with a X-Image-Quality HTTP header' do
-        let(:quality) { Immagine::Service::DEFAULT_IMAGE_QUALITY - 20 }
-
-        it 'uses the passed quality setting' do
-          expect_any_instance_of(Immagine::Service)
-            .to receive(:process_image)
-            .with(file_path, format_code, quality, nil)
-            .and_call_original
-
-          header 'X_IMAGE_QUALITY', quality
-          get "/live/images/#{format_code}/kitten.jpg"
-
-          expect(last_response).to be_ok
-        end
-      end
-    end
-
     context 'Image Encoding for JPEGs' do
       # http://en.wikipedia.org/wiki/JPEG
       # SOF2 [255, 194] = Start Of Frame (Progressive DCT)
@@ -458,7 +423,7 @@ describe Immagine::Service do
         file_types.each do |to_format|
           it "converts to #{to_format}" do
             expect(Immagine::ImageProcessorDriver).to receive(:new).with(
-              anything, anything, to_format.downcase.to_sym, anything
+              anything, anything, to_format.downcase.to_sym
             ).and_return(driver)
 
             get "/live/images/w100h100/kitten.jpg/convert/kitten.#{to_format}"
