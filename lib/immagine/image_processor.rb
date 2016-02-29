@@ -133,7 +133,7 @@ module Immagine
     def resize_relative_to_original!
       if img.columns <= 300
         img
-      elsif img.rows <= 1050
+      elsif img.columns <= 1050
         resize_image_by_width!(300)
       else
         resize_by_max!(703)
