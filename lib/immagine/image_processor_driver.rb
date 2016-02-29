@@ -1,14 +1,13 @@
 module Immagine
   class ImageProcessorDriver
-    attr_reader :image_processor, :format_processor, :conversion_format
+    attr_reader :image_processor, :format_processor, :conversion_format, :quality
 
-    def initialize(image_processor, format_processor, conversion_format)
+    def initialize(image_processor, format_processor, conversion_format, quality)
       @image_processor   = image_processor
       @format_processor  = format_processor
       @conversion_format = conversion_format
+      @quality           = quality
     end
-
-    DEFAULT_QUALITY = 85
 
     def process
       # OVERLAY
@@ -46,10 +45,9 @@ module Immagine
       # CONVERT
       image_processor.convert_format!(conversion_format) if conversion_format
 
-      # QUALITY
-      img_quality = format_processor.quality || DEFAULT_QUALITY
+      img         = image_processor.img
+      img_quality = quality
 
-      img = image_processor.img
       img.strip!
 
       blob = img.to_blob do

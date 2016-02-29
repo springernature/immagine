@@ -14,7 +14,6 @@ describe Immagine::FormatProcessor do
 
     context 'Good formats' do
       %w(
-        q50
         rel
         relb2
         m500
@@ -32,7 +31,6 @@ describe Immagine::FormatProcessor do
         h100
         w100
         h100w100
-        h100w100q50
         ov
         ovdominant
         oveee
@@ -60,43 +58,6 @@ describe Immagine::FormatProcessor do
           it { expect(described_class.new(code)).to_not be_valid }
         end
       end
-    end
-  end
-
-  context 'qXX' do
-    let(:format) { "q#{quality}" }
-    let(:quality) { 50 }
-
-    describe '#max' do
-      it { expect(subject.max).to be_nil }
-    end
-
-    describe '#height' do
-      it { expect(subject.height).to be_nil }
-    end
-
-    describe '#width' do
-      it { expect(subject.width).to be_nil }
-    end
-
-    describe '#relative?' do
-      it { expect(subject.relative?).to be_falsey }
-    end
-
-    describe '#crop?' do
-      it { expect(subject.crop?).to be_falsey }
-    end
-
-    describe '#blur?' do
-      it { expect(subject.blur?).to be_falsey }
-    end
-
-    describe '#overlay?' do
-      it { expect(subject.overlay?).to be_falsey }
-    end
-
-    describe '#quality' do
-      it { expect(subject.quality).to eq(quality) }
     end
   end
 
@@ -129,10 +90,6 @@ describe Immagine::FormatProcessor do
 
     describe '#overlay?' do
       it { expect(subject.overlay?).to be_falsey }
-    end
-    
-    describe '#quality' do
-      it { expect(subject.quality).to be_nil }
     end
   end
 
@@ -167,10 +124,6 @@ describe Immagine::FormatProcessor do
     describe '#overlay?' do
       it { expect(subject.overlay?).to be_falsey }
     end
-
-    describe '#quality' do
-      it { expect(subject.quality).to be_nil }
-    end
   end
 
   context 'wXXX' do
@@ -203,10 +156,6 @@ describe Immagine::FormatProcessor do
 
     describe '#overlay?' do
       it { expect(subject.overlay?).to be_falsey }
-    end
-
-    describe '#quality' do
-      it { expect(subject.quality).to be_nil }
     end
   end
 
@@ -250,10 +199,6 @@ describe Immagine::FormatProcessor do
     describe '#overlay?' do
       it { expect(subject.overlay?).to be_falsey }
     end
-
-    describe '#quality' do
-      it { expect(subject.quality).to be_nil }
-    end
   end
 
   context 'ovXX-XX' do
@@ -283,10 +228,6 @@ describe Immagine::FormatProcessor do
 
     describe '#blur?' do
       it { expect(subject.blur?).to be_falsey }
-    end
-
-    describe '#quality' do
-      it { expect(subject.quality).to be_nil }
     end
 
     describe '#overlay?' do
@@ -416,50 +357,8 @@ describe Immagine::FormatProcessor do
     describe '#overlay?' do
       it { expect(subject.overlay?).to be_falsey }
     end
-
-    describe '#quality' do
-      it { expect(subject.quality).to be_nil }
-    end
   end
 
-  context 'hXXXwXXXqXX' do
-    let(:format)  { "h#{height}w#{width}q#{quality}" }
-    let(:height)  { 200 }
-    let(:width)   { 200 }
-    let(:quality) { 50 }
-
-    describe '#max' do
-      it { expect(subject.max).to be_nil }
-    end
-
-    describe '#height' do
-      it { expect(subject.height).to eq(height) }
-    end
-
-    describe '#width' do
-      it { expect(subject.width).to eq(width) }
-    end
-
-    describe '#relative?' do
-      it { expect(subject.relative?).to be_falsey }
-    end
-
-    describe '#crop?' do
-      it { expect(subject.crop?).to be_falsey }
-    end
-
-    describe '#blur?' do
-      it { expect(subject.blur?).to be_falsey }
-    end
-
-    describe '#overlay?' do
-      it { expect(subject.overlay?).to be_falsey }
-    end
-
-    describe '#quality' do
-      it { expect(subject.quality).to eq(quality) }
-    end
-  end
   context 'cXX-XXX-XXX-XX' do
     let(:format)        { "c#{gravity}-#{height}-#{width}-#{resize_ratio}" }
     let(:height)        { 200 }
@@ -510,10 +409,6 @@ describe Immagine::FormatProcessor do
     describe '#overlay?' do
       it { expect(subject.overlay?).to be_falsey }
     end
-
-    describe '#quality' do
-      it { expect(subject.quality).to be_nil }
-    end
   end
 
   context 'bXXhXXXwXXX' do
@@ -556,10 +451,6 @@ describe Immagine::FormatProcessor do
 
     describe '#overlay?' do
       it { expect(subject.overlay?).to be_falsey }
-    end
-
-    describe '#quality' do
-      it { expect(subject.quality).to be_nil }
     end
   end
 
@@ -621,10 +512,6 @@ describe Immagine::FormatProcessor do
     describe '#overlay?' do
       it { expect(subject.overlay?).to be_falsey }
     end
-
-    describe '#quality' do
-      it { expect(subject.quality).to be_nil }
-    end
   end
 
   context 'bXXmXXX' do
@@ -666,10 +553,6 @@ describe Immagine::FormatProcessor do
 
     describe '#overlay?' do
       it { expect(subject.overlay?).to be_falsey }
-    end
-
-    describe '#quality' do
-      it { expect(subject.quality).to be_nil }
     end
   end
 end
