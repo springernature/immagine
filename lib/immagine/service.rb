@@ -5,6 +5,7 @@ require 'fileutils'
 
 module Immagine
   class Service < Sinatra::Base
+    DEFAULT_IMAGE_QUALITY = 85
     DEFAULT_EXPIRES       = 30 * 24 * 60 * 60 # 30 days in seconds
     ALLOWED_CONVERSION_FORMATS = %w(jpg png).freeze
 
@@ -203,7 +204,8 @@ module Immagine
 
     def generate_image(format_code, source_file, convert_to: nil)
       image_blob, mime = statsd.time('asset_resize') do
-        process_image(source_file, format_code, convert_to)
+        quality = Integer(request.env['HTTP_X_IMAGE_QUALITY'] || DEFAULT_IMAGE_QUALITY)
+        process_image(source_file, format_code, quality, convert_to)
       end
 
       # content type
@@ -212,13 +214,13 @@ module Immagine
       image_blob
     end
 
-    def process_image(path, format, convert_to)
+    def process_image(path, format, quality, convert_to)
       image_proc  = image_processor(path)
       format_proc = format_processor(format)
 
       raise "Unsupported format: '#{format}'" unless format_proc.valid?
 
-      ImageProcessorDriver.new(image_proc, format_proc, convert_to).process
+      ImageProcessorDriver.new(image_proc, format_proc, convert_to, quality).process
     end
 
     def process_video(source_file, output_file)

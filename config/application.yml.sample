@@ -5,7 +5,6 @@ format_whitelist:
   - w450      # At a glance popups
   - w926      # Full size figures
   - m685      # Article figures
-  - q10       # Example low quality
   - rel       # Illustrations
 
 source_folder: ./test-data/src
