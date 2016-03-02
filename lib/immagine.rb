@@ -33,7 +33,7 @@ module Immagine
       @statsd ||= begin
         environment      = ENV['RACK_ENV'] || 'development'
         statsd           = Statsd.new(settings.lookup('statsd_host'), settings.lookup('statsd_port'))
-        statsd.namespace = Statsd.new(settings.lookup('statsd_namespace'))
+        statsd.namespace = settings.lookup('statsd_namespace')
         Macmillan::Utils::StatsdDecorator.new(statsd, environment, logger)
       end
     rescue Macmillan::Utils::Settings::KeyNotFoundError
