@@ -476,15 +476,44 @@ describe Immagine::Service do
   end
 
   describe 'video thumbnails' do
-    context 'when the file exists' do
+    context 'when FFMPEG is installed' do
+      let(:filename)    { 'cat-vs-food' }
+      let(:dir)         { '/live/videos' }
+      let(:output_path) { File.join(Immagine.settings.lookup('source_folder'), 'tmp', filename, 'screenshot.jpg') }
+
       it 'returns a 200 response' do
         get '/live/videos/cat-vs-food.mp4'
         expect(last_response.status).to eq(200)
       end
 
       it 'returns a thumbnail for the video' do
+        expect_any_instance_of(Immagine::Service)
+          .to receive(:check_and_copy_screenshot)
+          .with(output_path, dir, filename)
+          .and_return('./test-data/src/live/videos/cat-vs-food.jpg')
+
+        expect_any_instance_of(Immagine::Service)
+          .to receive(:generate_image)
+
         get '/live/videos/w100h100/cat-vs-food.mp4'
         expect(last_response.status).to eq(200)
+      end
+    end
+
+    context 'when FFMPEG is not installed' do
+      let(:filename)    { 'cat-vs-food' }
+      let(:img_source)  { "/live/videos/#{filename}.mp4" }
+      let(:file_path)   { File.join(Immagine.settings.lookup('source_folder'), img_source) }
+      let(:output_path) { File.join(Immagine.settings.lookup('source_folder'), 'tmp', filename, 'screenshot.jpg') }
+
+      it 'returns a 404' do
+        expect_any_instance_of(Immagine::Service)
+          .to receive(:process_video)
+          .with(file_path, output_path)
+          .and_return(nil)
+
+        get '/live/videos/w100h100/cat-vs-food.mp4'
+        expect(last_response.status).to eq(404)
       end
     end
   end
