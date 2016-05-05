@@ -82,22 +82,20 @@ module Immagine
     end
 
     def generate_video_screenshot(format_code, source_file, dir, filename)
-      begin
-        FileUtils.mkpath(File.join(source_folder, 'tmp', filename))
+      FileUtils.mkpath(File.join(source_folder, 'tmp', filename))
 
-        output_file = File.join(source_folder, 'tmp', filename, 'screenshot.jpg')
+      output_file = File.join(source_folder, 'tmp', filename, 'screenshot.jpg')
 
-        process_video(source_file, output_file)
+      process_video(source_file, output_file)
 
-        source_file = check_and_copy_screenshot(output_file, dir, filename)
+      source_file = check_and_copy_screenshot(output_file, dir, filename)
 
-        generate_image(format_code, source_file)
-      rescue Errno::ENOENT
-        log_error('412, video processing not available on this server.')
-        halt 412
-      ensure
-        FileUtils.rm_rf(File.join(source_folder, 'tmp', filename))
-      end
+      generate_image(format_code, source_file)
+    rescue Errno::ENOENT
+      log_error('412, video processing not available on this server.')
+      halt 412
+    ensure
+      FileUtils.rm_rf(File.join(source_folder, 'tmp', filename))
     end
 
     def setup_image_processing(dir, format_code, basename)
