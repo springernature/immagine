@@ -8,6 +8,7 @@ require 'macmillan/utils'
 require 'macmillan/utils/statsd_stub'
 require 'memoizable'
 require 'dotenv'
+require 'mimemagic'
 
 Dotenv.load
 
