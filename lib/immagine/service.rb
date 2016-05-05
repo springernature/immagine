@@ -93,8 +93,8 @@ module Immagine
 
         generate_image(format_code, source_file)
       rescue Errno::ENOENT
-        log_error('404, video processing not supported.')
-        raise Sinatra::NotFound
+        log_error('412, video processing not available on this server.')
+        halt 412
       ensure
         FileUtils.rm_rf(File.join(source_folder, 'tmp', filename))
       end

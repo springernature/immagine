@@ -506,14 +506,14 @@ describe Immagine::Service do
       let(:file_path)   { File.join(Immagine.settings.lookup('source_folder'), img_source) }
       let(:output_path) { File.join(Immagine.settings.lookup('source_folder'), 'tmp', filename, 'screenshot.jpg') }
 
-      it 'returns a 404' do
+      it 'returns a 412' do
         expect_any_instance_of(Immagine::Service)
           .to receive(:process_video)
           .with(file_path, output_path)
           .and_return(nil)
 
         get '/live/videos/w100h100/cat-vs-food.mp4'
-        expect(last_response.status).to eq(404)
+        expect(last_response.status).to eq(412)
       end
     end
   end
