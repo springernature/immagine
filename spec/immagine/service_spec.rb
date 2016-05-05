@@ -296,9 +296,35 @@ describe Immagine::Service do
     end
 
     context 'when the format code is not in the whitelist' do
-      it 'returns a 404' do
-        get '/live/images/wrong_format/matz.jpg'
-        expect(last_response.status).to eq(404)
+      context 'in production (non-development) mode' do
+        it 'returns a 404' do
+          get '/live/images/w200/matz.jpg'
+          expect(last_response.status).to eq(404)
+        end
+      end
+
+      context 'in development mode' do
+        before do
+          ENV['RACK_ENV'] = 'development'
+        end
+
+        after do
+          ENV['RACK_ENV'] = 'test'
+        end
+
+        context 'and the format_code is valid' do
+          it 'returns a 200' do
+            get '/live/images/w200/matz.jpg'
+            expect(last_response.status).to eq(200)
+          end
+        end
+
+        context 'but the format_code is not valid' do
+          it 'returns a 404' do
+            get '/live/images/wrong_format/matz.jpg'
+            expect(last_response.status).to eq(404)
+          end
+        end
       end
     end
 

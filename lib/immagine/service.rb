@@ -99,7 +99,6 @@ module Immagine
     end
 
     def setup_image_processing(dir, format_code, basename)
-      # FIXME: make it so we don't consider the whitelist in development mode?
       # FIXME: make the whitelist optional?
 
       source_file = source_file_path(dir, basename)
@@ -124,11 +123,26 @@ module Immagine
     end
 
     def check_formatting_code(format_code)
-      return if Immagine.settings.lookup('format_whitelist').include?(format_code) && format_processor(format_code).valid?
+      all_ok = false
+
+      if check_whitelist?
+        if format_processor(format_code).valid? &&
+           Immagine.settings.lookup('format_whitelist').include?(format_code)
+          all_ok = true
+        end
+      elsif format_processor(format_code).valid?
+        all_ok = true
+      end
+
+      return if all_ok
 
       log_error("404, format code not found (#{format_code}).")
       statsd.increment('asset_format_not_in_whitelist')
       raise Sinatra::NotFound
+    end
+
+    def check_whitelist?
+      !(ENV['RACK_ENV'] && ENV['RACK_ENV'] == 'development')
     end
 
     def check_conversion_format(format)
