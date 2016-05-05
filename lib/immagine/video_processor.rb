@@ -1,17 +1,21 @@
 module Immagine
   class VideoProcessor
-    attr_reader :video
+    attr_reader :source
 
     VIDEO_FORMATS = %w(.mov .flv .mp4 .avi .mpg .wmv).freeze
 
     def initialize(source)
-      @video = FFMPEG::Movie.new(source)
+      @source = source
+    end
+
+    def video
+      FFMPEG::Movie.new(source)
     rescue Errno::ENOENT => ex
       log_error("Video processing not supported - #{ex}")
+      return nil
     end
 
     def screenshot(output_path)
-      return nil unless video
       video.screenshot(output_path, seek_time: second)
     end
 

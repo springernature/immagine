@@ -69,7 +69,7 @@ module Immagine
       filename   = basename.sub(/#{file_ext}$/, '')
 
       if VideoProcessor::VIDEO_FORMATS.include?(file_ext)
-        generate_video_screenshot(dir, basename, filename)
+        generate_video_screenshot(format_code, source_file, dir, filename)
       else
         generate_image(format_code, source_file)
       end
@@ -81,8 +81,7 @@ module Immagine
       Immagine.settings.lookup('source_folder')
     end
 
-    def generate_video_screenshot(dir, basename, filename)
-      source_file = source_file_path(dir, basename)
+    def generate_video_screenshot(format_code, source_file, dir, filename)
       begin
         FileUtils.mkpath(File.join(source_folder, 'tmp', filename))
 
@@ -90,9 +89,12 @@ module Immagine
 
         process_video(source_file, output_file)
 
-        FileUtils.cp(output_file, File.join(source_folder, dir, "#{filename}.jpg"))
+        source_file = check_and_copy_screenshot(output_file, dir, filename)
 
-        source_file = File.join(source_folder, dir, "#{filename}.jpg")
+        generate_image(format_code, source_file)
+      rescue Errno::ENOENT
+        log_error('412, video processing not available on this server.')
+        halt 412
       ensure
         FileUtils.rm_rf(File.join(source_folder, 'tmp', filename))
       end
@@ -155,6 +157,11 @@ module Immagine
       set_cache_control_headers(request, dir)
       statsd.increment('serve_original_image')
       send_file(static_file)
+    end
+
+    def check_and_copy_screenshot(output_file, dir, filename)
+      FileUtils.cp(output_file, File.join(source_folder, dir, "#{filename}.jpg"))
+      File.join(source_folder, dir, "#{filename}.jpg")
     end
 
     def set_etag_and_cache_headers(dir, format_code, basename, source_file)
@@ -224,7 +231,9 @@ module Immagine
     end
 
     def process_video(source_file, output_file)
-      video_processor(source_file).screenshot(output_file)
+      video_proc = video_processor(source_file)
+
+      video_processor(source_file).screenshot(output_file) if video_proc.video
     end
 
     def image_processor(path)
