@@ -82,22 +82,20 @@ module Immagine
     end
 
     def generate_video_screenshot(format_code, source_file, dir, filename)
-      begin
-        FileUtils.mkpath(File.join(source_folder, 'tmp', filename))
+      FileUtils.mkpath(File.join(source_folder, 'tmp', filename))
 
-        output_file = File.join(source_folder, 'tmp', filename, 'screenshot.jpg')
+      output_file = File.join(source_folder, 'tmp', filename, 'screenshot.jpg')
 
-        process_video(source_file, output_file)
+      process_video(source_file, output_file)
 
-        source_file = check_and_copy_screenshot(output_file, dir, filename)
+      source_file = check_and_copy_screenshot(output_file, dir, filename)
 
-        generate_image(format_code, source_file)
-      rescue Errno::ENOENT
-        log_error('412, video processing not available on this server.')
-        halt 412
-      ensure
-        FileUtils.rm_rf(File.join(source_folder, 'tmp', filename))
-      end
+      generate_image(format_code, source_file)
+    rescue Errno::ENOENT
+      log_error('412, video processing not available on this server.')
+      halt 412
+    ensure
+      FileUtils.rm_rf(File.join(source_folder, 'tmp', filename))
     end
 
     def setup_image_processing(dir, format_code, basename)
@@ -110,6 +108,7 @@ module Immagine
       check_for_and_send_static_file(dir, format_code, basename)
       check_formatting_code(format_code)
       check_source_file_exists(source_file)
+      check_for_exploits(source_file)
     end
 
     def source_file_path(dir, basename)
@@ -146,6 +145,19 @@ module Immagine
       log_error("404, original file not found (#{source_file}).")
       statsd.increment('asset_not_found')
       raise Sinatra::NotFound
+    end
+
+    # @ref: https://imagetragick.com
+    def check_for_exploits(source_file)
+      check_path  = MimeMagic.by_path(source_file)
+      check_magic = MimeMagic.by_magic(File.open(source_file, 'rb'))
+
+      return if check_magic &&
+                (check_magic.image? || check_magic.video?) &&
+                check_path.type == check_magic.type
+
+      log_error("403, File is not a valid image/video file (#{source_file}).")
+      halt 403
     end
 
     def check_for_and_send_static_file(dir, format_code, basename)

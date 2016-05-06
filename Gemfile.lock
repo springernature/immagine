@@ -28,6 +28,7 @@ GEM
     memoizable (0.4.2)
       thread_safe (~> 0.3, >= 0.3.1)
     method_source (0.8.2)
+    mimemagic (0.3.1)
     multi_test (0.1.2)
     newrelic_rpm (3.14.3.313)
     parser (2.3.0.6)
@@ -106,6 +107,7 @@ DEPENDENCIES
   foreman
   macmillan-utils
   memoizable
+  mimemagic
   newrelic_rpm
   pry
   puma

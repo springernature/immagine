@@ -15,6 +15,13 @@ describe 'Requesting an original (unaltered) image' do
 end
 
 describe 'Requesting a resized image' do
+  describe 'when an image intended to exploit the imagetragick bug is requested' do
+    it 'returns a 403 (forbidden)' do
+      get "/live/images/#{Immagine.settings.lookup('format_whitelist').sample}/imagetragick.png"
+      expect(last_response.status).to eq(403)
+    end
+  end
+
   describe 'When an invalid url is request' do
     it 'returns a 404' do
       get '/wrong_url'
