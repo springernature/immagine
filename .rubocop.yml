@@ -15,6 +15,8 @@ Style/IndentHash:
   EnforcedStyle: consistent
 
 Style/AlignHash:
+  Severity: fatal
+  Enabled: true
   EnforcedHashRocketStyle: table
   EnforcedColonStyle: table
 
@@ -37,3 +39,9 @@ Style/DotPosition:
 
 Style/DoubleNegation:
   Enabled: false
+
+Style/SpaceAroundOperators:
+  # When true, allows most uses of extra spacing if the intent is to align
+  # with an operator on the previous or next line, not counting empty lines
+  # or comment lines.
+  AllowForAlignment: true
