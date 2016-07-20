@@ -1,7 +1,7 @@
 require 'bundler'
 require 'yaml'
 require 'logger'
-require 'RMagick'
+require 'rmagick'
 require 'streamio-ffmpeg'
 require 'statsd-ruby'
 require 'macmillan/utils'
