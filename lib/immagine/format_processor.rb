@@ -4,8 +4,6 @@ module Immagine
 
     attr_reader :format_string
 
-    # TODO: make quality part of this option
-
     REGEX = {
       height:   /h(\d+)/,
       width:    /w(\d+)/,

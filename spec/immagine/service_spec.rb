@@ -443,7 +443,7 @@ describe Immagine::Service do
       context 'with a X-Image-Quality HTTP header' do
         let(:quality) { Immagine::Service::DEFAULT_IMAGE_QUALITY - 20 }
 
-        it 'uses the passed quality setting' do
+        it 'uses the passed image quality setting' do
           expect_any_instance_of(Immagine::Service)
             .to receive(:process_image)
             .with(file_path, format_code, quality, nil)
@@ -453,6 +453,47 @@ describe Immagine::Service do
           get "/live/images/#{format_code}/kitten.jpg"
 
           expect(last_response).to be_ok
+        end
+      end
+
+      context 'with a quality format parameter' do
+        let(:quality) { Immagine::Service::DEFAULT_IMAGE_QUALITY - 30 }
+
+        it 'uses the passed image quality setting' do
+          expect_any_instance_of(Immagine::Service)
+            .to receive(:process_image)
+            .with(file_path, format_code, quality, nil)
+            .and_call_original
+
+          get "/live/images/#{format_code}/q#{quality}/kitten.jpg"
+
+          expect(last_response).to be_ok
+        end
+
+        it 'does not use a quality value over 100' do
+          get "/live/images/#{format_code}/q100/kitten.jpg"
+          expect(last_response).to be_ok
+          get "/live/images/#{format_code}/q101/kitten.jpg"
+          expect(last_response.status).to eq(404)
+        end
+
+        it 'does not use a quality value under 0' do
+          header 'X_IMAGE_QUALITY', -1
+          get "/live/images/#{format_code}/kitten.jpg"
+          expect(last_response.status).to eq(404)
+        end
+      end
+
+      context 'a lower image quality' do
+        let(:quality) { Immagine::Service::DEFAULT_IMAGE_QUALITY - 30 }
+
+        it 'should yield a smaller image file' do
+          get "/live/images/#{format_code}/kitten.jpg"
+          expect(last_response).to be_ok
+          default_size = last_response.body.bytes.length
+          get "/live/images/#{format_code}/q#{quality}/kitten.jpg"
+          expect(last_response).to be_ok
+          expect(last_response.body.bytes.length).to be < default_size
         end
       end
     end
