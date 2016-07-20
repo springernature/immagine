@@ -38,50 +38,72 @@ module Immagine
       source = File.join(source_folder, path)
       not_found unless File.exist?(source)
 
-      etag(calculate_etags('wibble', 'wobble', source, source))
+      etag(calculate_etags(source, 'wibble', 'wobble'))
       last_modified(File.mtime(source))
 
       content_type :json
       analyse_color(source).merge(file: path).to_json
     end
 
+    # resizing, converting and quality end-point
+    get %r{\A(.+)?/([^/]+)/q(\d+)/([^/]+)/convert/([^\.]+)\.([^\./]+)\z} do |dir, format_code, quality, basename, _newname, newformat|
+      resize_and_convert(format_code, image_quality(quality), dir, basename, newformat)
+    end
+
     # resizing and converting end-point
     get %r{\A(.+)?/([^/]+)/([^/]+)/convert/([^\.]+)\.([^\./]+)\z} do |dir, format_code, basename, _newname, newformat|
-      newformat.downcase!
-      check_conversion_format(newformat)
+      resize_and_convert(format_code, image_quality, dir, basename, newformat)
+    end
 
-      setup_image_processing(dir, format_code, basename)
-
-      source_file = source_file_path(dir, basename)
-
-      set_etag_and_cache_headers(dir, format_code, basename, source_file)
-      generate_image(format_code, source_file, convert_to: newformat.to_sym)
+    # resizing and quality end-point
+    get %r{\A(.+)?/([^/]+)/q(\d+)/([^/]+)\z} do |dir, format_code, quality, basename|
+      resize(format_code, image_quality(quality), dir, basename)
     end
 
     # just resizing end-point
     get %r{\A(.+)?/([^/]+)/([^/]+)\z} do |dir, format_code, basename|
+      resize(format_code, image_quality, dir, basename)
+    end
+
+    private
+
+    def resize(format_code, quality, dir, basename)
       source_file = source_file_path(dir, basename)
 
-      setup_image_processing(dir, format_code, basename)
-      set_etag_and_cache_headers(dir, format_code, basename, source_file)
+      setup_image_processing(dir, format_code, quality, basename)
+      set_etag_and_cache_headers(dir, format_code, quality, basename, source_file)
 
       file_ext   = File.extname(basename)
       filename   = basename.sub(/#{file_ext}$/, '')
 
       if VideoProcessor::VIDEO_FORMATS.include?(file_ext)
-        generate_video_screenshot(format_code, source_file, dir, filename)
+        generate_video_screenshot(format_code, quality, source_file, dir, filename)
       else
-        generate_image(format_code, source_file)
+        generate_image(format_code, quality, source_file)
       end
     end
 
-    private
+    def resize_and_convert(format_code, quality, dir, basename, newformat)
+      newformat.downcase!
+      check_conversion_format(newformat)
+
+      setup_image_processing(dir, format_code, quality, basename)
+
+      source_file = source_file_path(dir, basename)
+
+      set_etag_and_cache_headers(dir, format_code, quality, basename, source_file)
+      generate_image(format_code, quality, source_file, convert_to: newformat.to_sym)
+    end
+
+    def image_quality(quality = nil)
+      Integer(quality || DEFAULT_IMAGE_QUALITY)
+    end
 
     def source_folder
       Immagine.settings.lookup('source_folder')
     end
 
-    def generate_video_screenshot(format_code, source_file, dir, filename)
+    def generate_video_screenshot(format_code, quality, source_file, dir, filename)
       FileUtils.mkpath(File.join(source_folder, 'tmp', filename))
 
       output_file = File.join(source_folder, 'tmp', filename, 'screenshot.jpg')
@@ -90,7 +112,7 @@ module Immagine
 
       source_file = check_and_copy_screenshot(output_file, dir, filename)
 
-      generate_image(format_code, source_file)
+      generate_image(format_code, quality, source_file)
     rescue Errno::ENOENT
       log_error('412, video processing not available on this server.')
       halt 412
@@ -98,7 +120,7 @@ module Immagine
       FileUtils.rm_rf(File.join(source_folder, 'tmp', filename))
     end
 
-    def setup_image_processing(dir, format_code, basename)
+    def setup_image_processing(dir, format_code, quality, basename)
       # FIXME: make the whitelist optional?
 
       source_file = source_file_path(dir, basename)
@@ -106,6 +128,7 @@ module Immagine
       check_directory_exists(dir)
       check_for_and_send_static_file(dir, format_code, basename)
       check_formatting_code(format_code)
+      check_quality(quality)
       check_source_file_exists(source_file)
       check_for_exploits(source_file)
     end
@@ -145,6 +168,14 @@ module Immagine
       !(ENV['RACK_ENV'] && ENV['RACK_ENV'] == 'development')
     end
 
+    def check_quality(quality)
+      return if quality > 0 && quality <= 100
+
+      log_error("404, invalid image quality (#{quality}).")
+      statsd.increment('invalid_quality')
+      raise Sinatra::NotFound
+    end
+
     def check_conversion_format(format)
       return if ALLOWED_CONVERSION_FORMATS.include?(format)
 
@@ -179,7 +210,7 @@ module Immagine
 
       return unless File.exist?(static_file)
 
-      etag(calculate_etags(dir, format_code, basename, static_file))
+      etag(calculate_etags(static_file, dir, format_code, basename))
       set_cache_control_headers(request, dir)
       statsd.increment('serve_original_image')
       send_file(static_file)
@@ -190,8 +221,8 @@ module Immagine
       File.join(source_folder, dir, "#{filename}.jpg")
     end
 
-    def set_etag_and_cache_headers(dir, format_code, basename, source_file)
-      etag(calculate_etags(dir, format_code, basename, source_file))
+    def set_etag_and_cache_headers(dir, format_code, quality, basename, source_file)
+      etag(calculate_etags(source_file, dir, format_code, quality, basename))
       last_modified(File.mtime(source_file))
       set_cache_control_headers(request, dir)
     end
@@ -235,9 +266,8 @@ module Immagine
       response['Edge-Control'] = 'no-store, max-age=0'
     end
 
-    def generate_image(format_code, source_file, convert_to: nil)
+    def generate_image(format_code, quality, source_file, convert_to: nil)
       image_blob, mime = statsd.time('asset_resize') do
-        quality = Integer(request.env['HTTP_X_IMAGE_QUALITY'] || DEFAULT_IMAGE_QUALITY)
         process_image(source_file, format_code, quality, convert_to)
       end
 
@@ -285,15 +315,9 @@ module Immagine
       image && image.destroy!
     end
 
-    def calculate_etags(dir, format_code, basename, source_file)
-      factors = [
-        dir,
-        format_code,
-        basename,
-        File.mtime(source_file)
-      ].to_json
-
-      Digest::MD5.hexdigest(factors)
+    def calculate_etags(source_file, *args)
+      factors = [File.mtime(source_file)] + args
+      Digest::MD5.hexdigest(factors.to_json)
     end
 
     def log_error(msg)

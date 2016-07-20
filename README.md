@@ -143,6 +143,13 @@ Valid combinations might be:
 
 As you can see, the formatting codes can get quite complex, but you can make them a little more readable if you use a sensible delimiter - i.e. an underscore.
 
+## Image Quality
+
+Image quality can be controlled by including a quality component in the URL:
+`/{path}/{format_code}/q{quality}/{file_name}`
+
+where quality can be a value from 1 to 100. Values outside this range will result in a 404 error. When the quality is not provided through the URL it will default to 85.
+
 ## Colour Analysis
 
 To analyse the colour in an image, use the following URL structure: `/analyse/{path}/{file_name}`
