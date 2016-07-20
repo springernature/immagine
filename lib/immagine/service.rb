@@ -96,7 +96,7 @@ module Immagine
     end
 
     def image_quality(quality = nil)
-      Integer(quality || request.env['HTTP_X_IMAGE_QUALITY'] || DEFAULT_IMAGE_QUALITY)
+      Integer(quality || DEFAULT_IMAGE_QUALITY)
     end
 
     def source_folder
@@ -169,7 +169,7 @@ module Immagine
     end
 
     def check_quality(quality)
-      return if quality >= 0 && quality <= 100
+      return if quality > 0 && quality <= 100
 
       log_error("404, invalid image quality (#{quality}).")
       statsd.increment('invalid_quality')

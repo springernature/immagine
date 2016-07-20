@@ -440,22 +440,6 @@ describe Immagine::Service do
         end
       end
 
-      context 'with a X-Image-Quality HTTP header' do
-        let(:quality) { Immagine::Service::DEFAULT_IMAGE_QUALITY - 20 }
-
-        it 'uses the passed image quality setting' do
-          expect_any_instance_of(Immagine::Service)
-            .to receive(:process_image)
-            .with(file_path, format_code, quality, nil)
-            .and_call_original
-
-          header 'X_IMAGE_QUALITY', quality
-          get "/live/images/#{format_code}/kitten.jpg"
-
-          expect(last_response).to be_ok
-        end
-      end
-
       context 'with a quality format parameter' do
         let(:quality) { Immagine::Service::DEFAULT_IMAGE_QUALITY - 30 }
 
@@ -477,9 +461,10 @@ describe Immagine::Service do
           expect(last_response.status).to eq(404)
         end
 
-        it 'does not use a quality value under 0' do
-          header 'X_IMAGE_QUALITY', -1
-          get "/live/images/#{format_code}/kitten.jpg"
+        it 'does not use a quality value under 1' do
+          get "/live/images/#{format_code}/q1/kitten.jpg"
+          expect(last_response).to be_ok
+          get "/live/images/#{format_code}/q0/kitten.jpg"
           expect(last_response.status).to eq(404)
         end
       end
