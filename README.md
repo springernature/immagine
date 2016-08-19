@@ -46,8 +46,6 @@ Here's a brief description of the available options:
 
 Immagine removes the need to create multiple resized versions of the same image to suit your design requirements. A single high-resolution image can instead be requested using a custom URL structure, and Immagine will resize & serve the image. Caching is handled by NGINX, and Immagine also manages all the HTTP headers you would expect for assets.
 
-[A presentation describing the basics of Immagine](https://dl.dropboxusercontent.com/u/239388/Immagine%20Talk/immagine.pdf)
-
 ### Original (Unmodified) Images
 
 Unresized images can be requested by users via the URL structure `/{path}/{file_name}`
