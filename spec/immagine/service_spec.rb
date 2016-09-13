@@ -503,7 +503,7 @@ describe Immagine::Service do
     end
 
     context 'and converting to a different file type' do
-      file_types = %w(jpg png JPG PNG)
+      file_types = %w(jpg png gif JPG PNG GIF)
 
       context 'when an allowed file type is requested' do
         let(:driver) { double(Immagine::ImageProcessorDriver, process: nil) }
