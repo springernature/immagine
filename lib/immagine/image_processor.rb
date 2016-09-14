@@ -4,7 +4,8 @@ module Immagine
   class ImageProcessor
     SUPPORTED_CONVERSION_FORMATS = {
       jpg: 'JPEG',
-      png: 'PNG'
+      png: 'PNG',
+      gif: 'GIF'
     }.freeze
 
     attr_reader :img

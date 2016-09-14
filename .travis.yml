@@ -14,4 +14,5 @@ addons:
 
 script:
   - cp config/application.yml.sample config/application.yml
+  - bundle exec rackup -p 3000 2>&1 &
   - bundle exec rspec --format documentation

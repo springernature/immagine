@@ -7,7 +7,7 @@ module Immagine
   class Service < Sinatra::Base
     DEFAULT_IMAGE_QUALITY = 85
     DEFAULT_EXPIRES       = 30 * 24 * 60 * 60 # 30 days in seconds
-    ALLOWED_CONVERSION_FORMATS = %w(jpg png).freeze
+    ALLOWED_CONVERSION_FORMATS = %w(jpg png gif).freeze
 
     configure do
       set :root, File.join(File.dirname(__FILE__), 'service')

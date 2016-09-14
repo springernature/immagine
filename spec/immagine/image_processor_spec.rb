@@ -7,6 +7,18 @@ module Immagine
     let(:source)      { File.join(test_folder, 'src', 'live', 'images', 'matz.jpg') }
     let(:processor)   { ImageProcessor.new(source) }
 
+    describe '#convert_format!' do
+      it 'enables conversion to allowed formats' do
+        img_format = processor.convert_format!(:gif)
+
+        expect(img_format).to eq('GIF')
+      end
+
+      it 'raises an error if it encounters a disallowed format' do
+        expect { processor.convert_format!(:noodle) }.to raise_error(Immagine::ImageProcessor::ProcessingError)
+      end
+    end
+
     describe '#constrain_width!' do
       it 'resizes the width and keeps the aspect ratio' do
         img = processor.constrain_width!(110)
