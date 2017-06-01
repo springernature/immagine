@@ -34,7 +34,7 @@ module Immagine
       erb :analyse_test
     end
 
-    get %r{\A/analyse/(.+)\z} do |path|
+    get %r{/analyse/(.+)} do |path|
       source = File.join(source_folder, path)
       not_found unless File.exist?(source)
 
@@ -46,22 +46,22 @@ module Immagine
     end
 
     # resizing, converting and quality end-point
-    get %r{\A(.+)?/([^/]+)/q(\d+)/([^/]+)/convert/([^\.]+)\.([^\./]+)\z} do |dir, format_code, quality, basename, _newname, newformat|
+    get %r{(.+)?/([^/]+)/q(\d+)/([^/]+)/convert/([^\.]+)\.([^\./]+)} do |dir, format_code, quality, basename, _newname, newformat|
       resize_and_convert(format_code, image_quality(quality), dir, basename, newformat)
     end
 
     # resizing and converting end-point
-    get %r{\A(.+)?/([^/]+)/([^/]+)/convert/([^\.]+)\.([^\./]+)\z} do |dir, format_code, basename, _newname, newformat|
+    get %r{(.+)?/([^/]+)/([^/]+)/convert/([^\.]+)\.([^\./]+)} do |dir, format_code, basename, _newname, newformat|
       resize_and_convert(format_code, image_quality, dir, basename, newformat)
     end
 
     # resizing and quality end-point
-    get %r{\A(.+)?/([^/]+)/q(\d+)/([^/]+)\z} do |dir, format_code, quality, basename|
+    get %r{(.+)?/([^/]+)/q(\d+)/([^/]+)} do |dir, format_code, quality, basename|
       resize(format_code, image_quality(quality), dir, basename)
     end
 
     # just resizing end-point
-    get %r{\A(.+)?/([^/]+)/([^/]+)\z} do |dir, format_code, basename|
+    get %r{(.+)?/([^/]+)/([^/]+)} do |dir, format_code, basename|
       resize(format_code, image_quality, dir, basename)
     end
 
@@ -228,7 +228,7 @@ module Immagine
     end
 
     def set_cache_control_headers(_request, dir)
-      if dir =~ %r{\A/staging}
+      if dir =~ %r{/staging}
         # FIXME: make this configurable - i.e. the /staging path being treated special like...
         cache_control(:private, :no_store, max_age: 0)
       else
