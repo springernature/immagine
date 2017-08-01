@@ -24,4 +24,7 @@ group :test do
   gem 'rack-test'
   gem 'capybara'
   gem 'poltergeist'
+  gem 'guard'
+  gem 'guard-rspec'
+  gem 'terminal-notifier-guard'
 end

@@ -27,12 +27,33 @@ GEM
     diff-lcs (1.3)
     docile (1.1.5)
     dotenv (2.2.1)
+    ffi (1.9.18)
     foreman (0.84.0)
       thor (~> 0.19.1)
+    formatador (0.2.5)
+    guard (2.14.1)
+      formatador (>= 0.2.4)
+      listen (>= 2.7, < 4.0)
+      lumberjack (~> 1.0)
+      nenv (~> 0.1)
+      notiffany (~> 0.0)
+      pry (>= 0.9.12)
+      shellany (~> 0.0)
+      thor (>= 0.18.1)
+    guard-compat (1.2.1)
+    guard-rspec (4.7.3)
+      guard (~> 2.1)
+      guard-compat (~> 1.1)
+      rspec (>= 2.99.0, < 4.0)
     hashdiff (0.3.4)
     i18n (0.8.1)
     json (2.1.0)
     kgio (2.11.0)
+    listen (3.1.5)
+      rb-fsevent (~> 0.9, >= 0.9.4)
+      rb-inotify (~> 0.9, >= 0.9.7)
+      ruby_dep (~> 1.2)
+    lumberjack (1.0.12)
     macmillan-utils (1.0.41)
       activesupport (>= 3.2.0)
       codeclimate-test-reporter
@@ -55,9 +76,13 @@ GEM
     minitest (5.10.2)
     multi_test (0.1.2)
     mustermann (1.0.0)
+    nenv (0.3.0)
     newrelic_rpm (4.1.0.333)
     nokogiri (1.7.2)
       mini_portile2 (~> 2.1.0)
+    notiffany (0.1.1)
+      nenv (~> 0.1)
+      shellany (~> 0.0)
     parser (2.4.0.0)
       ast (~> 2.2)
     poltergeist (1.15.0)
@@ -80,6 +105,9 @@ GEM
       rake
     raindrops (0.18.0)
     rake (12.0.0)
+    rb-fsevent (0.10.2)
+    rb-inotify (0.9.10)
+      ffi (>= 0.5.0, < 2)
     rmagick (2.16.0)
     rspec (3.6.0)
       rspec-core (~> 3.6.0)
@@ -101,7 +129,9 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.0, >= 1.0.1)
     ruby-progressbar (1.8.1)
+    ruby_dep (1.5.0)
     safe_yaml (1.0.4)
+    shellany (0.0.1)
     shotgun (0.9.2)
       rack (>= 1.0)
     simplecov (0.13.0)
@@ -120,6 +150,7 @@ GEM
     statsd-ruby (1.4.0)
     streamio-ffmpeg (1.0.0)
     syslog-logger (1.6.8)
+    terminal-notifier-guard (1.7.0)
     thor (0.19.4)
     thread_safe (0.3.6)
     tilt (2.0.7)
@@ -146,6 +177,8 @@ DEPENDENCIES
   capybara
   dotenv
   foreman
+  guard
+  guard-rspec
   macmillan-utils
   memoizable
   mimemagic
@@ -161,7 +194,8 @@ DEPENDENCIES
   sinatra
   statsd-ruby
   streamio-ffmpeg (~> 1.0)
+  terminal-notifier-guard
   unicorn
 
 BUNDLED WITH
-   1.15.0
+   1.15.1
