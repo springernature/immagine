@@ -1,5 +1,9 @@
 # Immagine
 
+## WARNING: this repository is not currently maintained!
+
+**Unfortunately we're not using this product internally at present and hence users should assume it's unmaintained. There may be known security issues or just general bit-rot. We hope the code may remain useful to some but we cannot offer any support at this time.**
+
 Immagine is the image manipulation service for [nature.com](http://nature.com).
 
 [![Build status][shield-build]][info-build]
